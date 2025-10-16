@@ -1,13 +1,13 @@
 import { View, Text, TouchableOpacity, Image, FlatList } from 'react-native';
-import { useTheme } from '../../src/hooks/useTheme';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { calendarEvents } from '@/src/static/dummyData';
 import EventCard from '@/src/components/ui/EventCard';
 import Topbar from '@/src/components/navigation/topbar';
+import { useTheme } from '@/src/context/ThemeContext';
 
 export default function Index() {
-  const { theme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
 
   // Sample data (replace with API calls in a real app)
   const stats: { title: string; value: string; icon: React.ComponentProps<typeof Ionicons>['name'] }[] = [
@@ -27,6 +27,12 @@ export default function Index() {
             ListHeaderComponent={
                 <>
                     <Topbar />
+                    <TouchableOpacity
+                        className="p-2 mt-4 bg-green-600 rounded"
+                        onPress={toggleTheme}
+                    >
+                        <Text style={{ color: theme.text }}>Switch Theme</Text>
+                    </TouchableOpacity>
                     {/* Centralized Platform Banner */}
                     <View className="bg-green-700 p-4 rounded-lg mx-4 mb-4" style={{ backgroundColor: '#2E7D32' }}>
                         <Text className="text-white text-center text-lg font-semibold">
@@ -68,7 +74,7 @@ export default function Index() {
             ListFooterComponent={
                 <>
                     {/* Explore Projects Section */}
-                    <View className="bg-green-700 p-4 rounded-lg mx-4 mt-4 mb-4" style={{ backgroundColor: '#2E7D32' }}>
+                    <View className="bg-green-700 p-4 rounded-lg mx-4 mt-4" style={{ backgroundColor: '#2E7D32' }}>
                         <Text className="text-white text-center text-xl font-semibold mb-2">
                         EXPLORE MORE PROJECTS FROM OUR ENGINEERS
                         </Text>

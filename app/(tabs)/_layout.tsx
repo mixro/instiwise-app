@@ -2,21 +2,18 @@ import { Tabs } from 'expo-router';
 import { useContext, useMemo } from 'react';
 import { View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useTheme } from '../../src/hooks/useTheme';
 import { themes } from '../../src/constants/themes';
+import { useTheme } from '@/src/context/ThemeContext';
 
 export default function TabLayout() {
   const { theme, toggleTheme } = useTheme();
 
-  const tabOptions = useMemo(
-    () => ({
-      tabBarActiveTintColor: theme.tabActiveTint,
-      tabBarInactiveTintColor: theme.tabInactiveTint,
-      tabBarStyle: { backgroundColor: theme.tabBackground, borderTopWidth: 1, borderTopColor: theme.border },
-      headerShown: false,
-    }),
-    [theme]
-  );
+  const tabOptions = {
+    tabBarActiveTintColor: theme.tabActiveTint,
+    tabBarInactiveTintColor: theme.tabInactiveTint,
+    tabBarStyle: { backgroundColor: theme.tabBackground, borderTopWidth: 1, borderTopColor: theme.border },
+    headerShown: false,
+  };
 
   return (
     <Tabs screenOptions={tabOptions}>
