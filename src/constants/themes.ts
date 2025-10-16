@@ -1,6 +1,6 @@
 export const themes = {
   light: {
-    background: '#FFFFFF',
+    background: '#990d0dff',
     text: '#000000',
     tabBackground: '#FFFFFF',
     tabActiveTint: '#2E7D32', // Green for InstiWise theme
