@@ -1,8 +1,6 @@
 import { Tabs } from 'expo-router';
-import { useContext, useMemo } from 'react';
 import { View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { themes } from '../../src/constants/themes';
 import { useTheme } from '@/src/context/ThemeContext';
 
 export default function TabLayout() {

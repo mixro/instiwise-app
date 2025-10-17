@@ -18,12 +18,13 @@ export default function Index() {
   ];
 
   return (
-    <SafeAreaView style={{ backgroundColor: theme.background }}>
+    <SafeAreaView edges={['top']} style={{ backgroundColor: theme.background, padding: 0 }}>
         <FlatList 
             data={calendarEvents}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => <EventCard event={item} />}
             showsVerticalScrollIndicator={false}
+            contentContainerStyle={{margin: 0 }}
             ListHeaderComponent={
                 <>
                     <Topbar />
