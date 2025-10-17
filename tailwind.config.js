@@ -10,6 +10,14 @@ module.exports = {
         'semibold': ['Poppins-SemiBold', 'sans-serif'],
         'bold': ['Poppins-Bold', 'sans-serif'],
       },
+      colors: {
+        'primary-light': '#f6f1ff',
+        'primary-dark': '#d8d7d7ff',
+        'primary-gray': '#a8a8a8ff',
+        'charcoal-color': '#2c2c2cff',
+        'accent-green': '#2E7D32', 
+        'ligth-green': '#d5e6d5ff',
+      }
     },
   },
   plugins: [],

@@ -2,18 +2,22 @@ export const themes = {
   light: {
     background: '#ffffffff',
     text: '#000000',
+    icons: '#222222ff',
     tabBackground: '#FFFFFF',
-    tabActiveTint: '#2E7D32', // Green for InstiWise theme
+    tabActiveTint: '#2E7D32', 
     tabInactiveTint: '#666666',
     border: '#DDDDDD',
+    cards_background: '#cfcfcfff',
   },
   dark: {
-    background: '#000000',
+    background: '#1b1b1bff',
     text: '#FFFFFF',
+    icons: '#FFFFFF',
     tabBackground: '#1C2526',
-    tabActiveTint: '#A3BE8C', // Lighter green for contrast
+    tabActiveTint: '#A3BE8C', 
     tabInactiveTint: '#D8DEE9',
     border: '#2E3440',
+    cards_background: '#2E3440',
   },
 };
 

@@ -11,7 +11,7 @@ export default function Topbar() {
     const isDrawerOpen = useDrawerStatus() === 'open';
 
   return (
-    <View className="flex-row p-4 " style={styles.topbar}>
+    <View className="flex-row" style={styles.topbar}>
         <Text style={[{ color: theme.text }, styles.logo]}>
           INSTiWISE
         </Text>
@@ -29,7 +29,8 @@ export default function Topbar() {
 const styles = StyleSheet.create({
   topbar: {
     alignItems: "center",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    paddingVertical: 8
   },
   logo: {
     fontWeight: "600",
