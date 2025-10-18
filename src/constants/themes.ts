@@ -7,6 +7,7 @@ export const themes = {
     tabActiveTint: '#2E7D32', 
     tabInactiveTint: '#666666',
     border: '#DDDDDD',
+    event_card: '#fafafaff',
     cards_background: '#cfcfcfff',
   },
   dark: {
@@ -16,6 +17,7 @@ export const themes = {
     tabBackground: '#1C2526',
     tabActiveTint: '#A3BE8C', 
     tabInactiveTint: '#D8DEE9',
+    event_card: '#2E3440',
     border: '#2E3440',
     cards_background: '#2E3440',
   },

@@ -8,6 +8,7 @@ import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawe
 import { Image, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { themes } from "@/src/constants/themes";
+import { Link } from "expo-router";
 
 export default function RootLayout() {
   const { theme } = useTheme();
@@ -111,21 +112,27 @@ function DrawerContent(props: any) {
         </View>
 
       </DrawerContentScrollView>
-      <TouchableOpacity 
+      <View 
         style={{backgroundColor: "#d5e6d5ff"}}
-        className="absolute bottom-[7%] left-4 flex-row items-center gap-2 w-[90%] rounded-lg p-1.5"
+        className="absolute bottom-[7%] left-4 w-[90%] rounded-lg p-1.5"
       >
-        <View className="rounded-full p-0.5 border border-2 border-[#2E7D32] flex-row items-center justify-center">
-          <Image
-            source={{ uri: 'https://i.pravatar.cc/100?img=12' }}
-            style={styles.profileImg}
-          />
-        </View>
-        <View>
-          <Text style={{ fontSize: 15 }}>Christopher Chong</Text>
-          <Text className="font-bold text-sm text-[#2E7D32]">Student</Text>
-        </View>
-      </TouchableOpacity>
+        <Link href={'/(tabs)/profile'} asChild>
+          <TouchableOpacity 
+            className="flex-row items-center gap-2"
+          >
+            <View className="rounded-full p-0.5 border border-2 border-[#2E7D32] flex-row items-center justify-center">
+              <Image
+                source={{ uri: 'https://i.pravatar.cc/100?img=12' }}
+                style={styles.profileImg}
+              />
+            </View>
+            <View>
+              <Text style={{ fontSize: 15 }}>Christopher Chong</Text>
+              <Text className="font-bold text-sm text-[#2E7D32]">Student</Text>
+            </View>
+          </TouchableOpacity>
+        </Link>
+      </View>
     </View>
   );
 }
