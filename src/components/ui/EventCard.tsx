@@ -21,11 +21,14 @@ export default function EventCard({ eventItem }: { eventItem: EventItem }) {
             <Ionicons name="location" size={16} color="#0a7975ff" />
             <Text style={{ color: theme.text }}> {eventItem.location}</Text>
         </View>
-        <Text className="p-1 rounded text-sm" 
-          style={{ color: '#ffffffff', backgroundColor: "#0a7975ff" }}
+        <View
+          style={{ backgroundColor: "#0a7975ff",paddingLeft: 5, borderRadius: 3, paddingVertical: 1 }}
         >
-          {eventItem.category}
-        </Text>
+          <Text className="text-sm" style={{ color: '#ffffffff' }}>
+            {eventItem.category}
+          </Text>
+
+        </View>
     </View>
   )
 }

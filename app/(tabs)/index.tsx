@@ -63,11 +63,11 @@ export default function Index() {
             ListFooterComponent={() => (
                 <View>
                     <View className='mb-2'>
-                    <Link href={'/(tabs)/calendar'} asChild>
-                        <TouchableOpacity className="bg-[#0C6A67] mt-8 p-2 px-7 rounded-full mx-auto">
-                        <Text className="font-semibold text-sm color-white">Explore events</Text>
-                        </TouchableOpacity>
-                    </Link>
+                        <Link href={'/(tabs)/calendar'} asChild>
+                            <TouchableOpacity className="bg-[#0C6A67] mt-3 p-2 px-7 rounded-full mx-auto">
+                            <Text className="font-semibold text-sm color-white">Explore events</Text>
+                            </TouchableOpacity>
+                        </Link>
                     </View>
 
                     <LinearGradient

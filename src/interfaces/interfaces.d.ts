@@ -1,4 +1,3 @@
-// interfaces/interfaces.d.ts
 export interface EventItem {
   _id: number;
   title: string;
@@ -8,9 +7,20 @@ export interface EventItem {
   start: string;
   end: string;
   isFavorite: boolean;
-  description?: string; // Optional field for extra details
+  description?: string; 
 }
 
 export type CalendarItem = 
   | (EventItem & { type: 'event' })
   | { type: 'header'; month: string; count: number };
+
+export interface NewsItem {
+  _id: number;
+  header: string;
+  img?: string; 
+  desc: string;
+  likes: number[]; 
+  dislikes: number[]; 
+  views: number[]; 
+  createdAt: string;
+}

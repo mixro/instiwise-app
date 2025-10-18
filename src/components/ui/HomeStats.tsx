@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     },
     value: {
         fontSize: 24,
-        fontWeight: 700,
+        fontWeight: 600,
         marginVertical: 12
     }
 })

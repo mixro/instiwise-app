@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { EventItem } from "../interfaces/interfaces";
+import { EventItem, NewsItem } from "../interfaces/interfaces";
 
 export const calendarEvents = [
     {
@@ -317,4 +317,106 @@ export const events: EventItem[] = [
   },
   // October 2026
   
+];
+
+export const news: NewsItem[] = [
+  {
+    _id: 1,
+    header: 'New Engineering Lab Opens',
+    img: 'https://firebasestorage.googleapis.com/v0/b/instiwise-testing.appspot.com/o/1693379970989_a7f66b3b-fb7c-4d76-a464-056e23d3d289.jpeg?alt=media&token=7860084b-a925-43af-b70c-015c47355fbb',
+    desc: 'The new engineering lab was inaugurated today, offering state-of-the-art facilities for students.',
+    likes: [1, 2, 3],
+    dislikes: [4],
+    views: [1, 2, 3, 4, 5],
+    createdAt: '2025-10-18T09:00:00Z',
+  },
+  {
+    _id: 2,
+    header: 'AI Course Enrollment Begins',
+    desc: 'Sign up for the upcoming AI course starting next month.',
+    likes: [5, 6],
+    dislikes: [],
+    views: [1, 2, 5, 6, 7],
+    createdAt: '2025-10-17T15:30:00Z',
+  },
+  {
+    _id: 3,
+    header: 'Campus Sustainability Initiative',
+    img: 'https://firebasestorage.googleapis.com/v0/b/instiwise-testing.appspot.com/o/1693947176485IMG_20230905_235126.jpg?alt=media&token=58153774-80d5-443d-b172-ff5f78d10337',
+    desc: 'Join our new initiative to make the campus more sustainable.',
+    likes: [7, 8],
+    dislikes: [9],
+    views: [1, 7, 8, 9, 10],
+    createdAt: '2025-10-15T11:00:00Z',
+  },
+  {
+    _id: 4,
+    header: 'Math Olympiad Winners Announced',
+    img: 'https://images.unsplash.com/photo-1523580494863-6f30330be94f?w=600&auto=format&fit=crop&q=60',
+    desc: 'Congratulations to the students who excelled in the Math Olympiad!',
+    likes: [10, 11],
+    dislikes: [],
+    views: [1, 10, 11, 12],
+    createdAt: '2025-10-10T14:00:00Z',
+  },
+  {
+    _id: 5,
+    header: 'Literature Club Event',
+    img: 'https://images.unsplash.com/photo-1533267165096-c1da8c763486?w=600&auto=format&fit=crop&q=60',
+    desc: 'Join us for a poetry reading session this Friday.',
+    likes: [12, 13],
+    dislikes: [14],
+    views: [1, 12, 13, 14, 15],
+    createdAt: '2025-09-28T18:00:00Z',
+  },
+  {
+    _id: 6,
+    header: 'Robotics Competition Update',
+    img: 'https://images.unsplash.com/photo-1516104435887-2592d4766c61?w=600&auto=format&fit=crop&q=60',
+    desc: 'Get the latest updates on the upcoming robotics competition.',
+    likes: [15, 16],
+    dislikes: [],
+    views: [1, 15, 16, 17],
+    createdAt: '2025-09-20T10:00:00Z',
+  },
+  {
+    _id: 7,
+    header: 'Art Exhibition Preview',
+    img: 'https://images.unsplash.com/photo-1502941566415-46732f7a1f59?w=600&auto=format&fit=crop&q=60',
+    desc: 'Preview the upcoming art exhibition featuring student works.',
+    likes: [17, 18],
+    dislikes: [19],
+    views: [1, 17, 18, 19, 20],
+    createdAt: '2025-09-15T13:00:00Z',
+  },
+  {
+    _id: 8,
+    header: 'Sports Day Schedule Released',
+    img: 'https://images.unsplash.com/photo-1579979357062-8e7c15243555?w=600&auto=format&fit=crop&q=60',
+    desc: 'Check out the schedule for the annual sports day event.',
+    likes: [20, 21],
+    dislikes: [],
+    views: [1, 20, 21, 22],
+    createdAt: '2025-09-01T08:00:00Z',
+  },
+  {
+    _id: 9,
+    header: 'Coding Bootcamp Registration',
+    img: 'https://images.unsplash.com/photo-1542831371-29b0f74f9491?w=600&auto=format&fit=crop&q=60',
+    desc: 'Register now for the intensive coding bootcamp in March.',
+    likes: [22, 23],
+    dislikes: [24],
+    views: [1, 22, 23, 24, 25],
+    createdAt: '2025-08-25T17:00:00Z',
+  },
+  {
+    _id: 10,
+    header: 'Alumni Networking Event',
+    img: 'https://images.unsplash.com/photo-1541746972966-29821b3ee3a7?w=600&auto=format&fit=crop&q=60',
+    desc: 'Connect with alumni at our networking event next month.',
+    likes: [25, 26],
+    dislikes: [],
+    views: [1, 25, 26, 27],
+    createdAt: '2025-08-10T12:00:00Z',
+  },
 ];

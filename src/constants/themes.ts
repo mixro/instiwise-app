@@ -1,6 +1,6 @@
 export const themes = {
   light: {
-    background: '#ffffffff',
+    background: '#ffffff',
     text: '#000000',
     icons: '#222222ff',
     tabBackground: '#FFFFFF',
