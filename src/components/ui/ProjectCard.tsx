@@ -16,10 +16,10 @@ export default function ProjectCard({ project } : {project: ProjectsItem} ) {
         <Link href={`/projects/${project._id}`} asChild>
             <Pressable>
                 <Image source={{ uri: project.img }}
-                className="w-full"
-                style={styles.image}
-                resizeMode="cover"
-            />
+                    className="w-full"
+                    style={styles.image}
+                    resizeMode="cover"
+                />
             </Pressable>
         </Link>
         <View className='p-2'>

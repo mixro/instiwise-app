@@ -99,7 +99,7 @@ export default function Calendar() {
             const headerItem = item as Extract<CalendarItem, { type: 'header' }>;
             return (
               <View className="flex-row justify-between px-1 py-4">
-                <Text className="text-xl font-semibold" style={{ color: theme.text }}>{headerItem.month}</Text>
+                <Text className="text-xl font-semibold" style={{ color: theme.blue_text }}>{headerItem.month}</Text>
                 <Text style={{ color: theme.text }}>Events: <Text className='font-semibold'>{headerItem.count}</Text></Text>
               </View>
             );

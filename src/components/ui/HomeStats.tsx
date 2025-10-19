@@ -46,10 +46,10 @@ const styles = StyleSheet.create({
         marginBottom: "4%"
     },
     title: {
-        fontSize: 13,
+        fontSize: 14,
     },
     value: {
-        fontSize: 24,
+        fontSize: 27,
         fontWeight: 600,
         marginVertical: 12
     }

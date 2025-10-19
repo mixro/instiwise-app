@@ -31,8 +31,8 @@ export default function Index() {
                         style={{ borderRadius: 8 }}
                         className="flex-1 justify-center items-center mt-6 p-4 py-7"
                     >
-                        <Text className="text-white text-xl font-semibold text-center capitalize">Centralizing every piece</Text>
-                        <Text className="text-white text-xl font-semibold text-center capitalize">of institutional information</Text>
+                        <Text className="text-white text-2xl font-semibold text-center capitalize">Centralizing every</Text>
+                        <Text className="text-white text-2xl font-semibold text-center capitalize">piece of DIT information</Text>
                     </LinearGradient>
                     
                     <HomeStats />
