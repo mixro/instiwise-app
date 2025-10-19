@@ -24,3 +24,25 @@ export interface NewsItem {
   views: number[]; 
   createdAt: string;
 }
+
+export interface ProjectsItem {
+  _id: number,
+  title: string;
+  userId: string; 
+  description: string;
+  img: string;
+  category: string;
+  problem?: string;
+  owner?: string;
+  duration?: string;
+  status?: 'in progress' | 'on hold' | 'completed';
+  goals: any[]; 
+  resources?: any[];
+  budget?: any[];
+  scope?: any[];
+  plan?: any[];
+  challenges?: any[];
+  likes?: any[];
+  createdAt?: string;
+  updatedAt?: string;
+}

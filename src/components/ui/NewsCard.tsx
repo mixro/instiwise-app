@@ -16,7 +16,7 @@ export default function NewsCard({ item } :  {item: NewsItem}) {
       <Text className="text-lg font-bold text-gray-900 dark:text-gray-100" style={{ color: theme.text }}>
         {item.header}
       </Text>
-      <Text className='text-sm' style={{ color: "#0e67ecff" }}>
+      <Text className='text-sm' style={{ color: theme.blue_text  }}>
         {moment(item.createdAt).fromNow()}
       </Text>
 

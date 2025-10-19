@@ -2,6 +2,7 @@ export const themes = {
   light: {
     background: '#ffffff',
     text: '#000000',
+    blue_text: '#0e67ecff',
     icons: '#222222ff',
     tabBackground: '#FFFFFF',
     tabActiveTint: '#2E7D32', 
@@ -13,6 +14,7 @@ export const themes = {
   dark: {
     background: '#1b1b1bff',
     text: '#FFFFFF',
+    blue_text: '#88b7fdff',
     icons: '#FFFFFF',
     tabBackground: '#1C2526',
     tabActiveTint: '#A3BE8C', 

@@ -4,7 +4,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/src/context/ThemeContext';
 import { news } from '@/src/static/dummyData';
 import { Ionicons } from '@expo/vector-icons';
-import { NewsItem } from '../../src/interfaces/interfaces';
 import NewsCard from '@/src/components/ui/NewsCard';
 import SearchBar from '@/src/components/ui/SearchBar';
 
