@@ -14,7 +14,7 @@ export default function ProjectDetails({project} : {project: ProjectsItem}) {
             const imageHeight = height / scaleFactor;
             setHeight(imageHeight);
         });
-    }, []);
+    }, [project]);
 
   return (
     <View>

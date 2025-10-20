@@ -58,7 +58,7 @@ export default function Projects() {
   });
 
   return (
-    <SafeAreaView edges={['top']} style={{ backgroundColor: theme.background, minHeight: "100%" }} className='px-3 pt-5'>
+    <SafeAreaView edges={['top']} style={{ backgroundColor: theme.background, minHeight: "100%" }} className='px-3'>
       {sortMenuVisible && (
         <View className="absolute border right-2 dark:bg-gray-800 p-3 rounded-lg shadow-md z-10"
           style={{ top: 110, borderColor: "#464646ff", backgroundColor: "white"}}
@@ -89,7 +89,7 @@ export default function Projects() {
         contentContainerStyle={{ margin: 0 }}
         ListHeaderComponent={
           <>
-            <View className='flex-row justify-between gap-2 items-center'>
+            <View className='flex-row justify-between gap-2 items-center pt-5'>
               <View className='flex-1'>
                 <SearchBar
                   placeholder='Search projects'

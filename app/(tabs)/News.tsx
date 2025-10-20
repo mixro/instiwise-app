@@ -24,7 +24,7 @@ export default function News() {
     : news;
 
   return (
-    <SafeAreaView edges={['top']} style={{ backgroundColor: theme.background, minHeight: "100%" }} className='px-3 pt-5'>
+    <SafeAreaView edges={['top']} style={{ backgroundColor: theme.background, minHeight: "100%" }} className='px-3'>
       <FlatList 
         data={filteredNews}
         keyExtractor={(item) => item._id.toString()}
@@ -33,11 +33,13 @@ export default function News() {
         contentContainerStyle={{ margin: 0 }}
         ListHeaderComponent={
           <>
-            <SearchBar
-              placeholder='Search news'
-              value={searchQuery}
-              onChangeText={handleSearch}
-            />
+            <View className='pt-7'>
+              <SearchBar
+                placeholder='Search news'
+                value={searchQuery}
+                onChangeText={handleSearch}
+              />
+            </View>
           </>
         }
         ListEmptyComponent={

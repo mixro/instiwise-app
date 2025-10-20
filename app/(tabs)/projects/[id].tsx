@@ -46,8 +46,8 @@ export default function project() {
               />
             </View>
             <View>
-              <Text style={{ fontSize: 17, color: theme.text, marginBottom: 3 }}>Christopher Chong</Text>
-              <Text className="font-bold text-sm" style={{color: theme.green_text}}>Student</Text>
+              <Text style={{ fontSize: 17, color: theme.text, marginBottom: 3 }}>{project.owner}</Text>
+              <Text className="font-bold text-md" style={{color: theme.green_text}}>Student</Text>
             </View>
           </View>
 
