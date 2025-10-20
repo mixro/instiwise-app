@@ -70,15 +70,6 @@ export default function RootLayout() {
             ),
           }}
         />
-        <Drawer.Screen
-          name="settings"
-          options={{
-            title: 'Settings',
-            drawerIcon: ({ color, size }) => (
-              <Ionicons name="settings" color={color} size={size} />
-            ),
-          }}
-        />
       </Drawer>
     </ThemeProvider>
   );

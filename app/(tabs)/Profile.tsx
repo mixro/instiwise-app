@@ -2,12 +2,11 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList } from 'react
 import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/src/context/ThemeContext';
-import { ScrollView } from 'react-native-gesture-handler';
-import Navbar from '@/src/components/navigation/navbar';
 import { Link } from 'expo-router';
 import { projects } from '@/src/static/dummyData';
 import ProjectCard from '@/src/components/ui/ProjectCard';
 import { Ionicons } from '@expo/vector-icons';
+import ProfileBar from '@/src/components/navigation/profilebar';
 
 export default function Profile() {
   const { theme } = useTheme();
@@ -25,7 +24,7 @@ export default function Profile() {
         ListHeaderComponent={
           <>
             <View className='pt-3 px-1'>
-              <Navbar />
+              <ProfileBar />
 
               <View className='flex-row items-start gap-4 pt-4'>
                 <View style={{borderColor: theme.text}} className="rounded-full p-0.5 border border-2 flex-row items-center justify-center">

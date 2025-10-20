@@ -10,10 +10,10 @@ import HomeStats from '@/src/components/ui/HomeStats';
 import { Link } from 'expo-router';
 
 export default function Index() {
-  const { theme, toggleTheme } = useTheme();
+  const { theme } = useTheme();
 
   return (
-    <SafeAreaView edges={['top']} style={{ backgroundColor: theme.background }} className='px-4'>
+    <SafeAreaView edges={['top']} style={{ backgroundColor: theme.background, minHeight: "100%" }} className='px-4'>
         <ScrollView showsVerticalScrollIndicator={false} style={{margin: 0, padding: 0}}>
             <Topbar />
                     
