@@ -59,7 +59,7 @@ export default function Profile() {
 
               <View className='flex-row pt-6 pb-10 justify-between'>
                 <View style={styles.button}>
-                  <Link href="/projects/create" asChild>
+                  <Link href="/user/personalDetails" asChild>
                     <TouchableOpacity className='flex-row justify-center p-2 rounded-md' style={{backgroundColor: theme.green_text, width: "100%"}}>
                       <Text className='text-white' style={{fontSize: 15}}>Edit profile</Text>
                     </TouchableOpacity>

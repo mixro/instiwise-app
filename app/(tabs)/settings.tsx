@@ -21,7 +21,7 @@ export default function Settings() {
             <View style={{paddingVertical: 20}}>
               <View>
                 <Text className='text-lg font-semibold mb-5' style={{color: theme.blue_text}}>Your account</Text>
-                <Link href="/" asChild>
+                <Link href="/user/personalDetails" asChild>
                   <TouchableOpacity>
                     <View className='flex-row items-center gap-3' style={{paddingVertical: 8}}>
                       <Ionicons name="person" size={24} color={theme.gray_text} />
@@ -30,7 +30,7 @@ export default function Settings() {
                     </View>
                   </TouchableOpacity>
                 </Link>
-                <Link href="/" asChild>
+                <Link href="/user/password" asChild>
                   <TouchableOpacity>
                     <View className='flex-row items-center gap-3' style={{paddingVertical: 8}}>
                       <MaterialIcons name="security" size={24} color={theme.gray_text} />
@@ -39,13 +39,15 @@ export default function Settings() {
                     </View>
                   </TouchableOpacity>
                 </Link>
-                <TouchableOpacity>
-                  <View className='flex-row items-center gap-3' style={{paddingVertical: 8}}>
-                    <MaterialIcons name="delete" size={26} color={theme.gray_text} />
-                    <Text className="flex-1" style={{color: theme.text, fontSize: 15}}>Delete account</Text>
-                    <AntDesign name="right" size={18} color={theme.text} />
-                  </View>
-                </TouchableOpacity>
+                <Link href="/user/deleteAccount" asChild>
+                  <TouchableOpacity>
+                    <View className='flex-row items-center gap-3' style={{paddingVertical: 8}}>
+                      <MaterialIcons name="delete" size={26} color={theme.gray_text} />
+                      <Text className="flex-1" style={{color: theme.text, fontSize: 15}}>Delete account</Text>
+                      <AntDesign name="right" size={18} color={theme.text} />
+                    </View>
+                  </TouchableOpacity>
+                </Link>
               </View>
             </View>
 

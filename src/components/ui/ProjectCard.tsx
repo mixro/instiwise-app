@@ -46,7 +46,7 @@ export default function ProjectCard({ project } : {project: ProjectsItem} ) {
                 {project.title}
             </Text>
 
-            <Text className="text-gray-600 dark:text-gray-300 mt-2 text-base leading-relaxed" style={{ color: theme.text }}>
+            <Text className="mt-2 text-base leading-relaxed" style={{ color: theme.dark_text }}>
                 {project.description}
             </Text>
 

@@ -13,7 +13,7 @@ export default function Navbar({title} :{title: string}) {
         <TouchableOpacity onPress={router.back}>
             <Ionicons name="arrow-back" size={26} color={theme.text} />
         </TouchableOpacity>
-        <Text className='text-xl font-bold' style={{color: theme.text}}>{title}</Text>
+        <Text className='text-xl font-semibold' style={{color: theme.text}}>{title}</Text>
     </View>
   )
 }
