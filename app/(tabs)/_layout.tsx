@@ -91,7 +91,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="user/password"
+        name="user/personalDetails"
         options={{
           href: null,
           headerShown: false,
