@@ -4,7 +4,6 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useTheme } from '@/src/context/ThemeContext';
 import Navbar from '@/src/components/navigation/navbar';
 import { Ionicons } from '@expo/vector-icons';
-import { blue } from 'react-native-reanimated/lib/typescript/Colors';
 const { height } = Dimensions.get('window');
 
 export default function personalDetails() {
