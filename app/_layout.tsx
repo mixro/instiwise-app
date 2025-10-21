@@ -128,7 +128,6 @@ function DrawerContent(props: any) {
   );
 }
 
-
 const styles = StyleSheet.create({
   logo: {
     width: 50,

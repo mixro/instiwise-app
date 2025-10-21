@@ -40,7 +40,8 @@ const ArrayInput = ({ label, value, setValue, array, setArray, theme }: {
         />
         <TouchableOpacity
           onPress={handleAddItem}
-          className='bg-blue-500 px-2 rounded-md flex-row items-center justify-center'
+          style={{backgroundColor: theme.blue_text, paddingHorizontal: 8}}
+          className='rounded-md flex-row items-center justify-center'
         >
           <FontAwesome6 name="add" size={20} color="white" />
         </TouchableOpacity>
