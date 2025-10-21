@@ -9,6 +9,7 @@ import { Image, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-n
 import { Ionicons } from '@expo/vector-icons';
 import { themes } from "@/src/constants/themes";
 import { Link } from "expo-router";
+import Sidebar from "@/src/components/navigation/sidebar";
 
 export default function RootLayout() {
   const { theme } = useTheme();
@@ -81,19 +82,19 @@ function DrawerContent(props: any) {
   const isDarkMode = theme === themes.dark;
 
   return (
-    <View style={{ flex: 1, paddingTop: 40, backgroundColor: theme.background, position: "relative" }}>
+    <View style={{ flex: 1, paddingTop: 40, backgroundColor: theme.secondary_background, position: "relative" }}>
       <View className="flex-row items-center gap-2 p-4 pb-10" style={{ borderBottomWidth: 1, borderBottomColor: theme.border }}>
         <Image 
-          source={require('@/assets/images/instiwise-icon.png')}
+          source={require('@/assets/images/instiwise-logo.png')}
           style={styles.logo}
         />
         <Text style={[{ color: theme.text }, { fontSize: 23,fontWeight: 600 }]}>INSTiWISE</Text>
       </View>
-      <DrawerContentScrollView style={{position: "relative",}} {...props}>
-        <DrawerItemList {...props} />
+      <DrawerContentScrollView style={{position: "relative"}}>
+        <Sidebar />
 
         <View className="p-4 pr-0 flex-row justify-between items-center" style={{ borderTopWidth: 1, borderTopColor: theme.border }}>
-          <Text style={{ color: theme.text }}>{isDarkMode ? "Light mode" : "Dark Mode"}</Text>
+          <Text style={{ color: theme.icons }} className="text-lg font-bold">{isDarkMode ? "Light mode" : "Dark Mode"}</Text>
           <Switch
             value={isDarkMode}
             onValueChange={toggleTheme}
@@ -101,10 +102,9 @@ function DrawerContent(props: any) {
             thumbColor={isDarkMode ? '#FFFFFF' : '#F4F3F4'}
           />
         </View>
-
       </DrawerContentScrollView>
       <View 
-        style={{backgroundColor: "#d5e6d5ff"}}
+        style={{backgroundColor: theme.green_accent}}
         className="absolute bottom-[7%] left-4 w-[90%] rounded-lg p-1.5"
       >
         <Link href={'/(tabs)/profile'} asChild>

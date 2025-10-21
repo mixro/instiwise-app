@@ -18,7 +18,7 @@ export default function Settings() {
           <View>
             <Navbar title="Settings" />
 
-            <View style={{paddingVertical: 20}}>
+            <View style={{paddingVertical: 20, paddingHorizontal: 2}}>
               <View>
                 <Text className='text-lg font-semibold mb-5' style={{color: theme.blue_text}}>Your account</Text>
                 <Link href="/user/personalDetails" asChild>
@@ -51,7 +51,7 @@ export default function Settings() {
               </View>
             </View>
 
-            <View style={{paddingVertical: 20}}>
+            <View style={{paddingVertical: 20, paddingHorizontal: 2}}>
               <View>
                 <Text className='text-lg font-semibold mb-5' style={{color: theme.blue_text}}>Authentification</Text>
                 <Link href="/signup" asChild>
@@ -82,7 +82,7 @@ export default function Settings() {
               </View>
             </View>
 
-            <View style={{paddingVertical: 20}}>
+            <View style={{paddingVertical: 20, paddingHorizontal: 2}}>
               <View>
                 <Text className='text-lg font-semibold mb-5' style={{color: theme.blue_text}}>More info and support</Text>
                 <TouchableOpacity>

@@ -90,7 +90,7 @@ export default function Projects() {
         ListHeaderComponent={
           <>
             <View className='flex-row justify-between gap-2 items-center pt-5'>
-              <View className='flex-1'>
+              <View className='flex-1 pl-1'>
                 <SearchBar
                   placeholder='Search projects'
                   value={searchQuery}

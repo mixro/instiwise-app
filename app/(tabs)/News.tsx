@@ -33,7 +33,7 @@ export default function News() {
         contentContainerStyle={{ margin: 0 }}
         ListHeaderComponent={
           <>
-            <View className='pt-7'>
+            <View className='pt-7 px-1'>
               <SearchBar
                 placeholder='Search news'
                 value={searchQuery}

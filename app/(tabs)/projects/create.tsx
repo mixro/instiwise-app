@@ -3,7 +3,8 @@ import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useTheme } from '@/src/context/ThemeContext';
 import Navbar from '@/src/components/navigation/navbar';
-import { FontAwesome6, Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { Picker } from '@react-native-picker/picker';
+import { Ionicons } from '@expo/vector-icons';
 import ArrayInput from '@/src/components/ui/ArrayInput';
 const { height } = Dimensions.get('window');
 
@@ -144,14 +145,19 @@ export default function create() {
               </View>
               <View className='pt-6'>
                   <Text className='text-lg mb-3 font-medium' style={{color: theme.text}}>Status</Text>
-                  <TextInput
-                      className='py-3 font-medium'
-                      value={inputs.duration}
-                      onChangeText={(text) => handleChange('duration', text)}
-                      style={styles.input}
-                      placeholder={"Project duration"}
-                      placeholderTextColor="#494949ff"
-                  />
+                  <View style={styles.select}>
+                    <Picker
+                      selectedValue={inputs.status}
+                      onValueChange={(itemValue) => handleChange('status', itemValue)}
+                      style={[{borderRadius: 5}, styles.input]}
+                      className='font-medium'
+                    >
+                      <Picker.Item label="Select category" value="" />
+                      <Picker.Item label="Completed" value="completed" />
+                      <Picker.Item label="In Progress" value="in progress" />
+                      <Picker.Item label="On Hold" value="on hold" />
+                    </Picker>
+                  </View>
               </View>
             </View>
             
@@ -225,6 +231,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#e6e6e6ff",
     borderRadius: 5,
     paddingLeft: 10,
+  },
+  select: {
+    backgroundColor: "#e6e6e6ff",
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#e6e6e6ff',
+    overflow: 'hidden',
   },
   addIcon: {
     width: 80,
