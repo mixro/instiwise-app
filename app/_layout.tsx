@@ -10,6 +10,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { themes } from "@/src/constants/themes";
 import { Link } from "expo-router";
 import Sidebar from "@/src/components/navigation/sidebar";
+import { store } from '@/store';
+import { Provider } from "react-redux";
 
 export default function RootLayout() {
   const { theme } = useTheme();
@@ -34,45 +36,47 @@ export default function RootLayout() {
 
 
   return (
-    <ThemeProvider>
-      <Drawer
-        drawerContent={(props) => <DrawerContent {...props} />}
-        screenOptions={{
-          headerShown: false,
-          drawerStyle: { backgroundColor: theme.background, width: '80%' },
-          drawerActiveTintColor: theme.tabActiveTint,
-          drawerInactiveTintColor: theme.tabInactiveTint,
-        }}
-      >
-        <Drawer.Screen
-          name="(tabs)"
-          options={{
-            title: 'Home',
-            drawerIcon: ({ color, size }) => (
-              <Ionicons name="home" color={color} size={size} />
-            ),
+    <Provider store={store}>
+      <ThemeProvider>
+        <Drawer
+          drawerContent={(props) => <DrawerContent {...props} />}
+          screenOptions={{
+            headerShown: false,
+            drawerStyle: { backgroundColor: theme.background, width: '80%' },
+            drawerActiveTintColor: theme.tabActiveTint,
+            drawerInactiveTintColor: theme.tabInactiveTint,
           }}
-        />
-        <Drawer.Screen
-          name="signup"
-          options={{
-            title: 'Sign Up',
-            drawerIcon: ({ color, size }) => (
-              <Ionicons name="person-add" color={color} size={size} />
-            ),
-          }}
-        />
-        <Drawer.Screen
-          name="login"
-          options={{
-            title: 'Login',
-            drawerIcon: ({ color, size }) => (
-              <Ionicons name="log-in" color={color} size={size} />
-            ),
-          }}
-        />
-      </Drawer>
-    </ThemeProvider>
+        >
+          <Drawer.Screen
+            name="(tabs)"
+            options={{
+              title: 'Home',
+              drawerIcon: ({ color, size }) => (
+                <Ionicons name="home" color={color} size={size} />
+              ),
+            }}
+          />
+          <Drawer.Screen
+            name="signup"
+            options={{
+              title: 'Sign Up',
+              drawerIcon: ({ color, size }) => (
+                <Ionicons name="person-add" color={color} size={size} />
+              ),
+            }}
+          />
+          <Drawer.Screen
+            name="login"
+            options={{
+              title: 'Login',
+              drawerIcon: ({ color, size }) => (
+                <Ionicons name="log-in" color={color} size={size} />
+              ),
+            }}
+          />
+        </Drawer>
+      </ThemeProvider>
+    </Provider>
   );
 }
 
@@ -93,7 +97,7 @@ function DrawerContent(props: any) {
       <DrawerContentScrollView style={{position: "relative"}}>
         <Sidebar />
 
-        <View className="p-4 pr-0 flex-row justify-between items-center" style={{ borderTopWidth: 1, borderTopColor: theme.border }}>
+        <View className="py-4 pr-0 flex-row justify-between items-center" style={{ borderTopWidth: 1, borderTopColor: theme.border }}>
           <Text style={{ color: theme.icons }} className="text-lg font-bold">{isDarkMode ? "Light mode" : "Dark Mode"}</Text>
           <Switch
             value={isDarkMode}
@@ -105,7 +109,7 @@ function DrawerContent(props: any) {
       </DrawerContentScrollView>
       <View 
         style={{backgroundColor: theme.green_accent}}
-        className="absolute bottom-[7%] left-4 w-[90%] rounded-lg p-1.5"
+        className="absolute bottom-[7%] left-3 w-[92%] rounded-lg p-1.5"
       >
         <Link href={'/(tabs)/profile'} asChild>
           <TouchableOpacity 

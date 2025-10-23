@@ -8,7 +8,7 @@ export default function Authbar({page} : {page: string}) {
   const { theme } = useTheme();  
 
   return (
-    <View style={{ backgroundColor: theme.background, minHeight: "30%" }}>
+    <View style={{ backgroundColor: theme.background, height: "38%" }}>
         <View className='flex-row items-center gap-2 flex-1 justify-center' style={{ paddingTop: 50, paddingBottom: 35 }}>
             <Image 
                 source={require('@/assets/images/instiwise-icon.png')}

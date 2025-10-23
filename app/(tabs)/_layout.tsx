@@ -1,10 +1,18 @@
-import { Tabs } from 'expo-router';
+import { Redirect, Tabs } from 'expo-router';
 import { View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/src/context/ThemeContext';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
 
 export default function TabLayout() {
-  const { theme, toggleTheme } = useTheme();
+  const { theme } = useTheme();
+  const { currentUser } = useSelector((state: RootState) => state.auth);
+
+  // PROTECTED: Redirect to login if not authenticated
+  /*{if (!currentUser) {
+    return <Redirect href="/login" />;
+  }}*/
 
   const tabOptions = {
     tabBarActiveTintColor: theme.tabActiveTint,
