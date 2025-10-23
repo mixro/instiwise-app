@@ -1,17 +1,69 @@
-import { View, Text, KeyboardAvoidingView, Dimensions, Platform, StyleSheet, ScrollView, TouchableOpacity, TextInput, Image } from 'react-native';
+import { View, Text, KeyboardAvoidingView, Dimensions, Platform, StyleSheet, ScrollView, TouchableOpacity, TextInput, Image, ActivityIndicator } from 'react-native';
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/src/context/ThemeContext';
-import { AntDesign, Entypo, FontAwesome, MaterialIcons } from '@expo/vector-icons';
-import { Link } from 'expo-router';
+import { AntDesign, Entypo, FontAwesome, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import Authbar from '@/src/components/navigation/authbar';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@/store';
+import { useRegisterMutation } from '@/store/authApi';
+import * as SecureStore from 'expo-secure-store';
+import { setCredentials } from '@/store/slices/authSlice';
+import { router } from 'expo-router';
 const { height } = Dimensions.get('window');
 
 export default function Signup() {
   const { theme } = useTheme();  
+  const dispatch = useDispatch();
+  const { currentUser } = useSelector((state: RootState) => state.auth);
+  const [register, { isLoading, error }] = useRegisterMutation();
+  
+  // Form state
   const [email, setEmail] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [verifiedPassword, setVerifiedPassword] = useState("");
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [verifiedPassword, setVerifiedPassword] = useState("");  
+  const [showPassword, setShowPassword] = useState(false);
+  const [showVerifiedPassword, setShowVerifiedPassword] = useState(false);
+  
+  // Password validation
+  const isValidPassword = (pwd: string) => pwd.length >= 6;
+  const hasNumber = (pwd: string) => /\d/.test(pwd);
+  const hasUpperLower = (pwd: string) => /[a-z]/.test(pwd) && /[A-Z]/.test(pwd);
+  const passwordsMatch = password === verifiedPassword;
+
+  const isFormValid =
+    username.length >= 3 &&
+    isValidPassword(password) &&
+    hasNumber(password) &&
+    hasUpperLower(password) &&
+    passwordsMatch;
+
+  const handleSignup = async () => {
+    try {
+      const result = await register({
+        username,
+        email,
+        password,
+      }).unwrap();
+
+      // Auto-login after signup
+      const userData = { ...result.user, accessToken: result.accessToken };
+      dispatch(setCredentials(userData));
+      await SecureStore.setItemAsync('instiwise-auth', JSON.stringify(userData));
+
+      router.replace('/(tabs)');
+    } catch (err: any) {
+      console.log("Signup error: ", err)
+    }
+  }
+
+  // Auto-redirect if already logged in
+  React.useEffect(() => {
+    if (currentUser) {
+      router.replace('/(tabs)');
+    }
+  }, [currentUser]);
 
   return (
     <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1, backgroundColor: theme.background }}>
@@ -49,6 +101,19 @@ export default function Signup() {
             <View>
               <View className='flex-row items-center gap-2 px-2.5 py-1' style={styles.input}>
                 <View className='w-8'>
+                  <MaterialIcons name="person" size={26} color="#383838ff" />
+                </View>
+                <TextInput
+                  className='font-regular flex-1'
+                  style={styles.inputText}
+                  value={username}
+                  onChangeText={(text: string) => setUsername(text)}
+                  placeholder="Enter your name"
+                  placeholderTextColor={theme.dark_text}
+                />
+              </View>
+              <View className='flex-row items-center gap-2 px-2.5 py-1' style={styles.input}>
+                <View className='w-8'>
                   <MaterialIcons name="email" size={26} color="#383838ff" />
                 </View>
                 <TextInput
@@ -67,12 +132,15 @@ export default function Signup() {
                 <TextInput
                   className='font-regular flex-1'
                   style={styles.inputText}
-                  value={newPassword}
-                  onChangeText={(text: string) => setNewPassword(text)}
+                  value={password}
+                  onChangeText={(text: string) => setPassword(text)}
                   placeholder="Enter your password"
                   placeholderTextColor={theme.dark_text}
-                  secureTextEntry
+                  secureTextEntry={!showPassword}
                 />
+                <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                  <Ionicons name={showPassword ? "eye" : "eye-off"} size={24} color="#383838ff" />
+                </TouchableOpacity>
               </View>
               <View className='flex-row items-center gap-2 px-2.5 py-1' style={styles.input}>
                 <View className='w-8'>
@@ -85,28 +153,75 @@ export default function Signup() {
                   onChangeText={(text: string) => setVerifiedPassword(text)}
                   placeholder="Verify your password"
                   placeholderTextColor={theme.dark_text}
-                  secureTextEntry
+                  secureTextEntry={!showVerifiedPassword}
                 />
+                <TouchableOpacity onPress={() => setShowVerifiedPassword(!showVerifiedPassword)}>
+                  <Ionicons name={showVerifiedPassword ? "eye" : "eye-off"} size={24} color="#383838ff" />
+                </TouchableOpacity>
               </View>
             </View>
 
-            <View className='pt-7'>
+            {/* Error Display */}
+            {error && (
+              <View style={styles.errorContainer}>
+                <Text style={styles.errorText}>
+                  {(error as any)?.data?.message || 'Signup failed. Please try again.'}
+                </Text>
+              </View>
+            )}
+
+            <View className='pt-5'>
               <View className='flex-row items-center gap-3 mb-2'>
-                <Entypo name="circle" size={16} color={theme.dark_text} />
-                <Text>Atleast 8 characters</Text>
+                {isValidPassword(password) 
+                  ? <Ionicons name="checkmark-circle-sharp" size={20} color="green" />
+                  : <Entypo name="circle" size={17} color={theme.dark_text} />
+                }
+                <Text>Atleast 6 characters</Text>
               </View>
               <View className='flex-row items-center gap-3 mb-2'>
-                <FontAwesome name="check-circle" size={20} color={theme.dark_text} />
+                {hasNumber(password) 
+                  ? <Ionicons name="checkmark-circle-sharp" size={20} color="green" />
+                  : <Entypo name="circle" size={17} color={theme.dark_text} />
+                }
                 <Text>Atleast 1 number</Text>
               </View>
               <View className='flex-row items-center gap-3 mb-2'>
-                <Entypo name="circle" size={16} color={theme.dark_text} />
+                {hasUpperLower(password) 
+                  ? <Ionicons name="checkmark-circle-sharp" size={20} color="green" />
+                  : <Entypo name="circle" size={17} color={theme.dark_text} />
+                }
                 <Text>Both upper and lower case letter</Text>
               </View>
+              <View className='flex-row items-center gap-3 mb-2'>
+                {passwordsMatch
+                  ? <Ionicons name="checkmark-circle-sharp" size={20} color="green" />
+                  : <Entypo name="circle" size={17} color={theme.dark_text} />
+                }
+                <Text>Passwords match</Text>
+              </View>
             </View>
+
+            {/* Signup Button */}
             <View className='pt-10'>
-              <TouchableOpacity style={{ backgroundColor: theme.green_button }} className='flex-row items-center justify-center p-3 rounded-md'>
-                <Text className='text-xl text-white font-semibold'>SIGN UP</Text>
+              <TouchableOpacity style={{ backgroundColor: theme.green_button }} className='flex-row items-center justify-center p-3 rounded-md'
+                onPress={handleSignup}
+                disabled={isLoading || !isFormValid}
+                activeOpacity={0.8}
+              >
+                {isLoading && <ActivityIndicator size="small" color="white" className="mr-2" />}
+                <Text className='text-xl text-white font-semibold'>
+                  {isLoading ? 'Creating account...' : 'SIGN UP'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Login Link */}
+            <View className="flex-row justify-center items-center gap-1 pt-6 items-center pb-6">
+              <Text className="text-md" style={{ color: theme.text }}>
+                Already have an account?
+              </Text>
+              <TouchableOpacity className='flex-row items-center ' onPress={() => router.push('/login')}>
+                <Text className="font-semibold text-blue-600">Sign in</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -160,5 +275,19 @@ const styles = StyleSheet.create({
     width: "100%",
     borderBottomWidth: 2.5,
     borderBottomColor: "#126865ff",
+  },
+  errorContainer: {
+    backgroundColor: '#fef2f2',
+    borderRadius: 8,
+    borderLeftWidth: 4,
+    borderLeftColor: '#ef4444',
+    marginBottom: 16,
+    padding: 12,
+  },
+  errorText: {
+    color: '#dc2626',
+    fontSize: 14,
+    textAlign: 'center',
+    fontWeight: '500',
   },
 });

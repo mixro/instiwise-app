@@ -10,7 +10,7 @@ import HomeStats from '@/src/components/ui/HomeStats';
 import { Link } from 'expo-router';
 
 export default function Index() {
-  const { theme } = useTheme();
+  const { theme } = useTheme();  
 
   return (
     <SafeAreaView edges={['top']} style={{ backgroundColor: theme.background, minHeight: "100%" }} className='px-4'>

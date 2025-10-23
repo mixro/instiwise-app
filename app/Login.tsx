@@ -61,8 +61,11 @@ export default function Login() {
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 1}
       >
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        <ScrollView contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
           <Authbar page="login" />
 
           <View className="px-4 pt-9 pb-5" style={{ backgroundColor: "#ccccccff" }}>
@@ -76,7 +79,7 @@ export default function Login() {
                 <View className="w-10">
                   <MaterialIcons name="apple" size={32} color="#383838ff" />
                 </View>
-                <Text style={[{ color: theme.dark_text, marginVertical: 13 }, styles.inputText]}>
+                <Text className='font-regular' style={[{ color: theme.dark_text, marginVertical: 13 }, styles.inputText]}>
                   Sign in with Apple
                 </Text>
               </TouchableOpacity>
@@ -89,7 +92,7 @@ export default function Login() {
                 <View className="w-10 pl-1">
                   <AntDesign name="google" size={25} color="#383838ff" />
                 </View>
-                <Text style={[{ color: theme.dark_text, marginVertical: 13 }, styles.inputText]}>
+                <Text className='font-regular' style={[{ color: theme.dark_text, marginVertical: 13 }, styles.inputText]}>
                   Sign in with Google
                 </Text>
               </TouchableOpacity>
