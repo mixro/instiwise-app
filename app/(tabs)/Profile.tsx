@@ -7,9 +7,11 @@ import { projects } from '@/src/static/dummyData';
 import ProjectCard from '@/src/components/ui/ProjectCard';
 import { Ionicons } from '@expo/vector-icons';
 import ProfileBar from '@/src/components/navigation/profilebar';
+import { useAuth } from '@/src/hooks/useAuth';
 
 export default function Profile() {
   const { theme } = useTheme();
+  const { user } = useAuth();
 
   return (
     <SafeAreaView edges={['top']} 
@@ -29,22 +31,22 @@ export default function Profile() {
               <View className='flex-row items-start gap-4 pt-4'>
                 <View style={{borderColor: theme.text}} className="rounded-full p-0.5 border border-2 flex-row items-center justify-center">
                   <Image
-                    source={{ uri: 'https://i.pravatar.cc/100?img=12' }}
+                    source={{ uri: user?.img || 'https://www.pngkey.com/png/full/157-1579943_no-profile-picture-round.png' }}
                     style={styles.profileImg}
                   />
                 </View>
                 <View className='flex-1'>
-                  <Text className='font-bold mb-2' style={{color: theme.text, fontSize: 20}}>Jensen Christopher</Text>
+                  <Text className='font-bold mb-2' style={{color: theme.text, fontSize: 20}}>{user.username}</Text>
                   <View className='flex-row items-center flex-1'>
                     <View style={styles.metrics}>
                       <View className='flex-column items-center'>
-                        <Text className='text-3xl' style={{color: theme.text}}>4</Text>
+                        <Text className='text-3xl' style={{color: theme.text}}>{user.projects.length}</Text>
                         <Text className='text-lg' style={{color: theme.text}}>Projects</Text>
                       </View>
                     </View>
                     <View style={styles.metrics}>
                       <View className='flex-column items-center'>
-                        <Text className='text-3xl' style={{color: theme.text}}>3</Text>
+                        <Text className='text-3xl' style={{color: theme.text}}>{user.awards.length}</Text>
                         <Text className='text-lg' style={{color: theme.text}}>Awards</Text>
                       </View>
                     </View>

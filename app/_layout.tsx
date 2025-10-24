@@ -110,7 +110,8 @@ function DrawerContent(props: any) {
           />
         </View>
       </DrawerContentScrollView>
-      <View 
+      
+      {/* <View 
         style={{backgroundColor: theme.green_accent}}
         className="absolute bottom-[7%] left-3 w-[92%] rounded-lg p-1.5"
       >
@@ -120,17 +121,17 @@ function DrawerContent(props: any) {
           >
             <View className="rounded-full p-0.5 border border-2 border-[#2E7D32] flex-row items-center justify-center">
               <Image
-                source={{ uri: 'https://i.pravatar.cc/100?img=12' }}
+                source={{ uri: user?.img || 'https://www.pngkey.com/png/full/157-1579943_no-profile-picture-round.png' }}
                 style={styles.profileImg}
               />
             </View>
             <View>
-              <Text style={{ fontSize: 15 }}>{user?.username || 'No user'}</Text>
+              <Text style={{ fontSize: 16, marginBottom: 2 }}>{user?.username || 'No user'}</Text>
               <Text className="font-bold text-sm text-[#2E7D32]">Student</Text>
             </View>
           </TouchableOpacity>
         </Link>
-      </View>
+      </View> */}
     </View>
   );
 }

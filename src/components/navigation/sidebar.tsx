@@ -1,11 +1,24 @@
-import { View, Text, Pressable, StyleSheet } from 'react-native'
+import { View, Text, Pressable, StyleSheet, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { Link } from 'expo-router'
-import { Ionicons, MaterialIcons } from '@expo/vector-icons'
+import { AntDesign, Ionicons, MaterialIcons } from '@expo/vector-icons'
 import { useTheme } from '@/src/context/ThemeContext';
+import { useAuth } from '@/src/hooks/useAuth';
+import { useRouter } from 'expo-router';
 
 export default function Sidebar() {
   const { theme, toggleTheme } = useTheme();
+  const { signOut } = useAuth(); 
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+        await signOut();
+        router.replace('/login');
+    } catch(error) {
+        console.log('Logout error:', error);
+    }
+  }
 
   return (
     <View>
@@ -57,8 +70,13 @@ export default function Sidebar() {
                     <Text className='text-lg font-bold' style={{color: theme.darker_text}}>Sign up</Text>
                 </View>
             </Link>
+            <TouchableOpacity activeOpacity={0.7} className='flex-row items-center gap-5' style={[{backgroundColor: "#fdc200ff"}, styles.item]}
+                onPress={handleLogout}
+            >
+                <AntDesign name="logout" size={24} color="black" />
+                <Text className='text-lg font-bold' style={{color: "black"}}>logout</Text>
+            </TouchableOpacity>
         </View>
-
     </View>
   )
 }
