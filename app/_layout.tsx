@@ -10,8 +10,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { themes } from "@/src/constants/themes";
 import { Link } from "expo-router";
 import Sidebar from "@/src/components/navigation/sidebar";
-import { RootState, store } from '@/store';
+import { store } from '@/store';
 import { Provider, useSelector } from "react-redux";
+import { useAuth } from "@/src/hooks/useAuth";
 
 export default function RootLayout() {
   const { theme } = useTheme();
@@ -85,7 +86,7 @@ export default function RootLayout() {
 function DrawerContent(props: any) {
   const { theme, toggleTheme } = useTheme();
   const isDarkMode = theme === themes.dark;
-    const { currentUser } = useSelector((state: RootState) => state.auth);
+  const { user, isLoading, signOut } = useAuth();
 
   return (
     <View style={{ flex: 1, paddingTop: 40, backgroundColor: theme.secondary_background, position: "relative" }}>
@@ -124,7 +125,7 @@ function DrawerContent(props: any) {
               />
             </View>
             <View>
-              <Text style={{ fontSize: 15 }}>{currentUser?.username || 'Christopher Chong'}</Text>
+              <Text style={{ fontSize: 15 }}>{user?.username || 'No user'}</Text>
               <Text className="font-bold text-sm text-[#2E7D32]">Student</Text>
             </View>
           </TouchableOpacity>

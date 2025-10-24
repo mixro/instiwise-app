@@ -10,11 +10,13 @@ import { useRegisterMutation } from '@/store/authApi';
 import * as SecureStore from 'expo-secure-store';
 import { setCredentials } from '@/store/slices/authSlice';
 import { router } from 'expo-router';
+import { useStorage } from '@/utils/useStorage';
 const { height } = Dimensions.get('window');
 
 export default function Signup() {
   const { theme } = useTheme();  
   const dispatch = useDispatch();
+  const { saveAuth } = useStorage();
   const { currentUser } = useSelector((state: RootState) => state.auth);
   const [register, { isLoading, error }] = useRegisterMutation();
   
@@ -30,7 +32,7 @@ export default function Signup() {
   const isValidPassword = (pwd: string) => pwd.length >= 6;
   const hasNumber = (pwd: string) => /\d/.test(pwd);
   const hasUpperLower = (pwd: string) => /[a-z]/.test(pwd) && /[A-Z]/.test(pwd);
-  const passwordsMatch = password === verifiedPassword;
+  const passwordsMatch = password !== "" && verifiedPassword !== "" && password === verifiedPassword;
 
   const isFormValid =
     username.length >= 3 &&
@@ -47,10 +49,10 @@ export default function Signup() {
         password,
       }).unwrap();
 
-      // Auto-login after signup
-      const userData = { ...result.user, accessToken: result.accessToken };
-      dispatch(setCredentials(userData));
-      await SecureStore.setItemAsync('instiwise-auth', JSON.stringify(userData));
+      // Save to Redux + SecureStore
+      const userData = { ...result };
+      dispatch(setCredentials(userData)); // Redux
+      await saveAuth(userData);          // SecureStore
 
       router.replace('/(tabs)');
     } catch (err: any) {
@@ -221,7 +223,7 @@ export default function Signup() {
                 Already have an account?
               </Text>
               <TouchableOpacity className='flex-row items-center ' onPress={() => router.push('/login')}>
-                <Text className="font-semibold text-blue-600">Sign in</Text>
+                <Text className="font-semibold text-blue-600">Login</Text>
               </TouchableOpacity>
             </View>
           </View>

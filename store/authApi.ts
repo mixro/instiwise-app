@@ -12,22 +12,18 @@ interface RegisterCredentials {
   password: string;
 }
 
-interface CheckUsernameRequest {
-  username: string;
-}
-
-interface CheckUsernameResponse {
-  exists: boolean;
-}
-
 interface AuthResponse {
-  user: {
-    _id: string;
-    username: string;
-    email: string;
-    role?: string;
-  };
+  _id: string;
   accessToken: string;
+  awards?: any[];
+  connections?: any[];
+  createdAt?: string;
+  email: string;
+  isAdmin?: boolean;
+  projects?: any[];
+  updatedAt?: string;
+  username: string;
+  [key: string]: any; // Allow extra fields
 }
 
 export const authApi = createApi({
@@ -51,20 +47,18 @@ export const authApi = createApi({
       }),
       invalidatesTags: ['Auth'],
     }),
-    // ✅ NEW: Real-time username check
-    checkUsername: builder.query<CheckUsernameResponse, CheckUsernameRequest>({
-      query: ({ username }) => ({
-        url: '/auth/check-username',
-        method: 'POST',
-        body: { username },
+    getMe: builder.query<AuthResponse['user'], void>({
+      query: () => ({
+        url: '/auth/me',
+        credentials: 'include',
       }),
-      providesTags: ['Username'],
-    }),
+      providesTags: ['Auth'],
+    })
   }),
 });
 
 export const { 
   useLoginMutation, 
   useRegisterMutation, 
-  useCheckUsernameQuery // ✅ Export for real-time check
+  useGetMeQuery,
 } = authApi;

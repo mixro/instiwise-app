@@ -16,26 +16,27 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { useLoginMutation } from '@/store/authApi';
 import { setCredentials } from '@/store/slices/authSlice';
-import * as SecureStore from 'expo-secure-store';
 import { useTheme } from '@/src/context/ThemeContext';
-import { AntDesign, MaterialIcons } from '@expo/vector-icons';
+import { useStorage } from '@/utils/useStorage';
+import { AntDesign, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import Authbar from '@/src/components/navigation/authbar';
-import { useAuth } from '@/src/hooks/useAuth';
 
 export default function Login() {
   const router = useRouter();
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state: RootState) => state.auth);
   //const { user: currentUser, restoreAuth } = useAuth();
+  const { saveAuth } = useStorage();
   const [login, { isLoading, error }] = useLoginMutation();
   const { theme } = useTheme();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  
 
   // Auto-redirect if already logged in
   React.useEffect(() => {
-    //restoreAuth();
     if (currentUser) {
       router.replace('/(tabs)');
     }
@@ -46,9 +47,9 @@ export default function Login() {
       const result = await login({ email, password }).unwrap();
       
       // Save to Redux + SecureStore
-      const userData = { ...result.user, accessToken: result.accessToken };
-      dispatch(setCredentials(userData));
-      await SecureStore.setItemAsync('instiwise_auth', JSON.stringify(userData));
+      const userData = { ...result };
+      dispatch(setCredentials(userData)); // Redux
+      await saveAuth(userData);          // SecureStore
       
       router.replace('/(tabs)');
     } catch (err: any) {
@@ -61,7 +62,6 @@ export default function Login() {
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 1}
       >
         <ScrollView contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
@@ -80,7 +80,7 @@ export default function Login() {
                   <MaterialIcons name="apple" size={32} color="#383838ff" />
                 </View>
                 <Text className='font-regular' style={[{ color: theme.dark_text, marginVertical: 13 }, styles.inputText]}>
-                  Sign in with Apple
+                  Sign in with Apple {currentUser?.username}
                 </Text>
               </TouchableOpacity>
 
@@ -132,9 +132,12 @@ export default function Login() {
                 onChangeText={setPassword}
                 placeholder="Enter your password"
                 placeholderTextColor={theme.dark_text}
-                secureTextEntry
+                secureTextEntry={!showPassword}
                 editable={!isLoading}
               />
+              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                <Ionicons name={showPassword ? "eye" : "eye-off"} size={24} color="#383838ff" />
+              </TouchableOpacity>
             </View>
 
             {/* Error Display */}
@@ -157,19 +160,19 @@ export default function Login() {
               >
                 {isLoading && <ActivityIndicator size="small" color="white" className="mr-2" />}
                 <Text className="text-xl text-white font-semibold">
-                  {isLoading ? 'Signing in...' : 'SIGN IN'}
+                  {isLoading ? 'Signing in...' : 'LOGIN'}
                 </Text>
               </TouchableOpacity>
             </View>
 
             {/* Register Link */}
-            <View className="pt-6 items-center pb-8">
-              <Text className="text-center text-sm" style={{ color: theme.text }}>
-                Don't have an account?{' '}
-                <TouchableOpacity onPress={() => router.push('/signup')}>
-                  <Text className="font-semibold text-blue-500">Sign up</Text>
-                </TouchableOpacity>
+            <View className="flex-row justify-center items-center gap-1 pt-6 items-center pb-4">
+              <Text className="text-md" style={{ color: theme.text }}>
+                Don't have an account?
               </Text>
+              <TouchableOpacity className='flex-row items-center ' onPress={() => router.push('/signup')}>
+                <Text className="font-semibold text-blue-600">Sign up</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </ScrollView>
@@ -181,7 +184,7 @@ export default function Login() {
 const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
-    paddingBottom: 20,
+    paddingBottom: 0,
   },
   input: {
     backgroundColor: '#ffffffff',
