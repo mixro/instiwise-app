@@ -20,12 +20,12 @@ import { useTheme } from '@/src/context/ThemeContext';
 import { useStorage } from '@/utils/useStorage';
 import { AntDesign, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import Authbar from '@/src/components/navigation/authbar';
+import { useAuth } from '@/src/hooks/useAuth';
 
 export default function Login() {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { currentUser } = useSelector((state: RootState) => state.auth);
-  //const { user: currentUser, restoreAuth } = useAuth();
+  const { user: currentUser } = useAuth();
   const { saveAuth } = useStorage();
   const [login, { isLoading, error }] = useLoginMutation();
   const { theme } = useTheme();
@@ -45,11 +45,15 @@ export default function Login() {
   const handleLogin = async () => {
     try {
       const result = await login({ email, password }).unwrap();
+      console.log('API Response:', result);
       
       // Save to Redux + SecureStore
-      const userData = { ...result };
-      dispatch(setCredentials(userData)); // Redux
-      await saveAuth(userData);          // SecureStore
+      const userData = {
+        ...result.data.user,
+        accessToken: result.data.accessToken,
+      }
+      dispatch(setCredentials(userData)); 
+      await saveAuth(userData);          
       
       router.replace('/(tabs)');
     } catch (err: any) {
@@ -80,7 +84,7 @@ export default function Login() {
                   <MaterialIcons name="apple" size={32} color="#383838ff" />
                 </View>
                 <Text className='font-regular' style={[{ color: theme.dark_text, marginVertical: 13 }, styles.inputText]}>
-                  Sign in with Apple {currentUser?.username}
+                  Sign in with Apple 
                 </Text>
               </TouchableOpacity>
 
@@ -167,7 +171,7 @@ export default function Login() {
 
             {/* Register Link */}
             <View className="flex-row justify-center items-center gap-1 pt-6 items-center pb-4">
-              <Text className="text-md" style={{ color: theme.text }}>
+              <Text className="text-md">
                 Don't have an account?
               </Text>
               <TouchableOpacity className='flex-row items-center ' onPress={() => router.push('/signup')}>

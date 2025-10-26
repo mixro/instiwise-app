@@ -1,5 +1,4 @@
 import { View, Text, TouchableOpacity, Image, FlatList, ScrollView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { events } from '@/src/static/dummyData';
 import EventCard from '@/src/components/ui/EventCard';
@@ -8,13 +7,13 @@ import { useTheme } from '@/src/context/ThemeContext';
 import { LinearGradient } from "expo-linear-gradient";
 import HomeStats from '@/src/components/ui/HomeStats';
 import { Link } from 'expo-router';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store';
+import { useAuth } from '@/src/hooks/useAuth';
 
 export default function Index() {
   const { theme } = useTheme();  
-  const { currentUser } = useSelector((state: RootState) => state.auth);
-  //  const { user: currentUser, restoreAuth } = useAuth();
+  const { user } = useAuth();
+
+  //console.log("index.js", user)
 
   return (
     <SafeAreaView edges={['top']} style={{ backgroundColor: theme.background, minHeight: "100%" }} className='px-4'>
@@ -28,7 +27,7 @@ export default function Index() {
                 style={{ borderRadius: 8 }}
                 className="flex-1 justify-center items-center mt-6 p-4 py-7"
             >
-                <Text className="text-white text-2xl font-semibold text-center capitalize">Centralizing every {currentUser?.username}</Text>
+                <Text className="text-white text-2xl font-semibold text-center capitalize">Centralizing every</Text>
                 <Text className="text-white text-2xl font-semibold text-center capitalize">piece of DIT information</Text>
             </LinearGradient>
             

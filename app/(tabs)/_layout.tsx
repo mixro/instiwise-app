@@ -7,12 +7,6 @@ import { RootState } from '@/store';
 
 export default function TabLayout() {
   const { theme } = useTheme();
-  const { currentUser } = useSelector((state: RootState) => state.auth);
-
-  // PROTECTED: Redirect to login if not authenticated
-  /*{if (!currentUser) {
-    return <Redirect href="/login" />;
-  }}*/
 
   const tabOptions = {
     tabBarActiveTintColor: theme.tabActiveTint,

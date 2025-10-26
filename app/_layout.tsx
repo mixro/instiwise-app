@@ -68,6 +68,15 @@ export default function RootLayout() {
             }}
           />
           <Drawer.Screen
+            name="setupUsername"
+            options={{
+              title: 'Sign Up',
+              drawerIcon: ({ color, size }) => (
+                <Ionicons name="person-add" color={color} size={size} />
+              ),
+            }}
+          />
+          <Drawer.Screen
             name="login"
             options={{
               title: 'Login',

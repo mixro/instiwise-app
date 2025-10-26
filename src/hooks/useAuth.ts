@@ -1,8 +1,9 @@
 import { RootState } from "@/store";
-import { useGetMeQuery } from "@/store/authApi";
+import { useGetMeQuery, useLogoutMutation } from "@/store/authApi";
 import { logout, setCredentials } from "@/store/slices/authSlice";
 import { useStorage } from "@/utils/useStorage";
-import { useEffect } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 
@@ -10,8 +11,9 @@ export const useAuth = () => {
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state: RootState) => state.auth);
   const { getAuth, saveAuth } = useStorage();
-  const { data: userFromApi, isLoading } = useGetMeQuery(undefined, {
-    skip: !currentUser, // Only fetch if authenticated
+  const [logoutTrigger] = useLogoutMutation();
+  const { data: basicUser, isLoading: isLoadingBasic, refetch } = useGetMeQuery(undefined, {
+    skip: !currentUser, // Only skip if no user
   });
 
   // RESTORE FROM SECURESTORE ON APP START
@@ -30,26 +32,42 @@ export const useAuth = () => {
     restoreAuth();
   }, [dispatch, currentUser]);
 
-  // SYNC WITH API (KEEP DATA FRESH)
-  useEffect(() => {
-    if (userFromApi && currentUser?._id === userFromApi._id) {
-      const updatedUser = { ...currentUser!, ...userFromApi, accessToken: currentUser!.accessToken };
+  // SYNC WITH API (FULL DATA FROM /me)
+  {/*useEffect(() => {
+    if (basicUser && currentUser?._id === basicUser.user._id) {
+      const updatedUser = {
+        ...currentUser!,
+        ...basicUser.user,
+        accessToken: currentUser!.accessToken,
+        details: {
+          awards: basicUser.user.awards,
+          projects: basicUser.user.projects,
+          connections: basicUser.user.connections,
+          createdAt: basicUser.user.createdAt,
+          updatedAt: basicUser.user.updatedAt,
+        },
+      };
       dispatch(setCredentials(updatedUser));
-      saveAuth(updatedUser);
-      console.log('🔄 SYNCED WITH API:', updatedUser.username)
+      saveAuth(updatedUser); // Persist all data
+      console.log('🔄 SYNCED WITH API:', updatedUser.username);
     }
-  }, [userFromApi]);
+  }, [basicUser]);*/}
 
   const signOut = async () => {
-    dispatch(logout());
-    await useStorage().clearAuth();
-    console.log('🔴 LOGOUT COMPLETE')
-  }
+    try {
+      await logoutTrigger().unwrap(); // Call backend logout
+      dispatch(logout());
+      await useStorage().clearAuth();
+      console.log('🔴 LOGOUT COMPLETE');
+    } catch (error) {
+      console.log('Logout error:', error);
+    }
+  };
 
   return {
-    user: currentUser || userFromApi || null,
+    user: currentUser || (basicUser?.user ? { ...basicUser.user, accessToken: basicUser.accessToken, details: basicUser } : null),
     isAuthenticated: !!currentUser,
-    isLoading,
-    signOut
-  }
+    isLoading: isLoadingBasic,
+    signOut,
+  };
 };

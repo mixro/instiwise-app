@@ -7,22 +7,21 @@ import Authbar from '@/src/components/navigation/authbar';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { useRegisterMutation } from '@/store/authApi';
-import * as SecureStore from 'expo-secure-store';
 import { setCredentials } from '@/store/slices/authSlice';
 import { router } from 'expo-router';
 import { useStorage } from '@/utils/useStorage';
+import { useAuth } from '@/src/hooks/useAuth';
 const { height } = Dimensions.get('window');
 
 export default function Signup() {
   const { theme } = useTheme();  
   const dispatch = useDispatch();
   const { saveAuth } = useStorage();
-  const { currentUser } = useSelector((state: RootState) => state.auth);
+  const { user: currentUser } = useAuth();  
   const [register, { isLoading, error }] = useRegisterMutation();
   
   // Form state
   const [email, setEmail] = useState('');
-  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [verifiedPassword, setVerifiedPassword] = useState("");  
   const [showPassword, setShowPassword] = useState(false);
@@ -35,7 +34,6 @@ export default function Signup() {
   const passwordsMatch = password !== "" && verifiedPassword !== "" && password === verifiedPassword;
 
   const isFormValid =
-    username.length >= 3 &&
     isValidPassword(password) &&
     hasNumber(password) &&
     hasUpperLower(password) &&
@@ -43,18 +41,24 @@ export default function Signup() {
 
   const handleSignup = async () => {
     try {
-      const result = await register({
-        username,
-        email,
-        password,
-      }).unwrap();
+      const result = await register({ email, password, }).unwrap();
+      console.log('API Response:', result);
 
       // Save to Redux + SecureStore
-      const userData = { ...result };
-      dispatch(setCredentials(userData)); // Redux
-      await saveAuth(userData);          // SecureStore
+      const userData = {
+        ...result.data.user,
+        accessToken: result.data.accessToken,
+      }
+      dispatch(setCredentials(userData)); 
+      await saveAuth(userData);
 
-      router.replace('/(tabs)');
+      // Redirect to setup-username if not active
+      if (!userData.isActive) {
+        router.replace('/setupUsername');
+      } else {
+        router.replace('/(tabs)');
+      }
+      
     } catch (err: any) {
       console.log("Signup error: ", err)
     }
@@ -101,19 +105,6 @@ export default function Signup() {
             >Or continue with email</Text>
 
             <View>
-              <View className='flex-row items-center gap-2 px-2.5 py-1' style={styles.input}>
-                <View className='w-8'>
-                  <MaterialIcons name="person" size={26} color="#383838ff" />
-                </View>
-                <TextInput
-                  className='font-regular flex-1'
-                  style={styles.inputText}
-                  value={username}
-                  onChangeText={(text: string) => setUsername(text)}
-                  placeholder="Enter your name"
-                  placeholderTextColor={theme.dark_text}
-                />
-              </View>
               <View className='flex-row items-center gap-2 px-2.5 py-1' style={styles.input}>
                 <View className='w-8'>
                   <MaterialIcons name="email" size={26} color="#383838ff" />
@@ -219,7 +210,7 @@ export default function Signup() {
 
             {/* Login Link */}
             <View className="flex-row justify-center items-center gap-1 pt-6 items-center pb-6">
-              <Text className="text-md" style={{ color: theme.text }}>
+              <Text className="text-md">
                 Already have an account?
               </Text>
               <TouchableOpacity className='flex-row items-center ' onPress={() => router.push('/login')}>

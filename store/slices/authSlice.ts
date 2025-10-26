@@ -2,16 +2,21 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface CurrentUser {
   _id: string;
-  accessToken: string;
-  awards?: any[];
-  connections?: any[];
-  createdAt?: string;
+  username?: string; // Optional until setup
   email: string;
-  isAdmin?: boolean;
-  projects?: any[];
-  updatedAt?: string;
-  username: string;
-  [key: string]: any; // Allow extra fields
+  img?: string;
+  isAdmin: boolean;
+  projectsCount: number;
+  connectionsCount: number;
+  isActive: boolean;
+  accessToken: string;
+  details?: {
+    awards?: { name: string; date: Date; description?: string }[];
+    projects?: { _id: string; title: string; description: string }[];
+    connections?: { _id: string; user1: string; user2: string; status?: string }[];
+    createdAt?: Date;
+    updatedAt?: Date;
+  };
 }
 
 interface AuthState {

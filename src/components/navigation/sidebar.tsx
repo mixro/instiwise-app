@@ -7,7 +7,7 @@ import { useAuth } from '@/src/hooks/useAuth';
 import { useRouter } from 'expo-router';
 
 export default function Sidebar() {
-  const { theme, toggleTheme } = useTheme();
+  const { theme } = useTheme();
   const { signOut } = useAuth(); 
   const router = useRouter();
 
@@ -47,7 +47,7 @@ export default function Sidebar() {
                     <Text className='text-lg font-bold' style={{color: theme.darker_text}}>Projects</Text>
                 </View>
             </Link>
-            <Link href='/(tabs)/settings' className='mb-3'>
+            <Link href='/setupUsername' className='mb-3'>
                 <View className='flex-row items-center gap-5' style={[{backgroundColor: theme.menu_button}, styles.item]}>
                     <Ionicons name="settings-sharp" color={theme.icons} size={24} />
                     <Text className='text-lg font-bold' style={{color: theme.darker_text}}>Settings</Text>
@@ -70,7 +70,8 @@ export default function Sidebar() {
                     <Text className='text-lg font-bold' style={{color: theme.darker_text}}>Sign up</Text>
                 </View>
             </Link>
-            <TouchableOpacity activeOpacity={0.7} className='flex-row items-center gap-5' style={[{backgroundColor: "#fdc200ff"}, styles.item]}
+            <TouchableOpacity activeOpacity={0.7} className='flex-row items-center gap-5' 
+                style={[{backgroundColor: "#fdc200ff"}, styles.item]}
                 onPress={handleLogout}
             >
                 <AntDesign name="logout" size={24} color="black" />
