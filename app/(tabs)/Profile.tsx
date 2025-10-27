@@ -13,8 +13,6 @@ export default function Profile() {
   const { theme } = useTheme();
   const { user } = useAuth();
 
-  console.log(user)
-
   return (
     <SafeAreaView edges={['top']} 
       style={{ backgroundColor: theme.background, minHeight: "100%" }} className='px-3'
@@ -33,7 +31,7 @@ export default function Profile() {
               <View className='flex-row items-start gap-4 pt-4'>
                 <View style={{borderColor: theme.text}} className="rounded-full p-0.5 border border-2 flex-row items-center justify-center">
                   <Image
-                    source={{ uri:  'https://www.pngkey.com/png/full/157-1579943_no-profile-picture-round.png' }}
+                    source={{ uri: user?.img || 'https://www.pngkey.com/png/full/157-1579943_no-profile-picture-round.png' }}
                     style={styles.profileImg}
                   />
                 </View>

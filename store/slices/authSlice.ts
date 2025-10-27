@@ -5,6 +5,7 @@ export interface CurrentUser {
   username?: string; // Optional until setup
   email: string;
   img?: string;
+  bio?: string;
   isAdmin: boolean;
   projectsCount: number;
   connectionsCount: number;
@@ -12,8 +13,8 @@ export interface CurrentUser {
   accessToken: string;
   details?: {
     awards?: { name: string; date: Date; description?: string }[];
-    projects?: { _id: string; title: string; description: string }[];
-    connections?: { _id: string; user1: string; user2: string; status?: string }[];
+    //projects?: { _id: string; title: string; description: string }[];
+    //connections?: { _id: string; user1: string; user2: string; status?: string }[];
     createdAt?: Date;
     updatedAt?: Date;
   };

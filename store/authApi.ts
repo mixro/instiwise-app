@@ -20,7 +20,8 @@ interface AuthResponse {
     user: {
       _id: string;
       username?: string;
-      img: string;
+      img?: string;
+      bio?: string;
       awards: { name: string; date: Date; description?: string }[];
       email: string;
       isAdmin: boolean;
@@ -38,6 +39,7 @@ interface UserDetailsResponse {
     username: string;
     email: string;
     img: string;
+    bio?: string;
     isAdmin: boolean;
     awards?: { name: string; date: Date; description?: string }[];
     projectsCount: number;
@@ -88,7 +90,6 @@ export const authApi = createApi({
     getMe: builder.query<UserDetailsResponse, void>({
       query: () => ({
         url: '/auth/me',
-        credentials: 'include',
       }),
       providesTags: ['Auth'],
     }),

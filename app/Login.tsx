@@ -36,11 +36,11 @@ export default function Login() {
   
 
   // Auto-redirect if already logged in
-  React.useEffect(() => {
+  {/*React.useEffect(() => {
     if (currentUser) {
       router.replace('/(tabs)');
     }
-  }, [currentUser]);
+  }, [currentUser]);*/}
 
   const handleLogin = async () => {
     try {

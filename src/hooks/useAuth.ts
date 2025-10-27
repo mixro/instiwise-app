@@ -12,7 +12,7 @@ export const useAuth = () => {
   const { currentUser } = useSelector((state: RootState) => state.auth);
   const { getAuth, saveAuth } = useStorage();
   const [logoutTrigger] = useLogoutMutation();
-  const { data: basicUser, isLoading: isLoadingBasic, refetch } = useGetMeQuery(undefined, {
+  const { data: basicUser, isLoading: isLoadingBasic } = useGetMeQuery(undefined, {
     skip: !currentUser, // Only skip if no user
   });
 
@@ -33,7 +33,7 @@ export const useAuth = () => {
   }, [dispatch, currentUser]);
 
   // SYNC WITH API (FULL DATA FROM /me)
-  {/*useEffect(() => {
+  useEffect(() => {
     if (basicUser && currentUser?._id === basicUser.user._id) {
       const updatedUser = {
         ...currentUser!,
@@ -41,17 +41,18 @@ export const useAuth = () => {
         accessToken: currentUser!.accessToken,
         details: {
           awards: basicUser.user.awards,
-          projects: basicUser.user.projects,
-          connections: basicUser.user.connections,
+          //projects: basicUser.user.projects,
+          //connections: basicUser.user.connections,
           createdAt: basicUser.user.createdAt,
           updatedAt: basicUser.user.updatedAt,
         },
       };
+      console.log("updated", updatedUser);
       dispatch(setCredentials(updatedUser));
       saveAuth(updatedUser); // Persist all data
       console.log('🔄 SYNCED WITH API:', updatedUser.username);
     }
-  }, [basicUser]);*/}
+  }, [basicUser]);
 
   const signOut = async () => {
     try {

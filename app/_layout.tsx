@@ -18,7 +18,6 @@ export default function RootLayout() {
   const { theme } = useTheme();
   const [fontLoaded, setFontLoaded] = useState(false);
   
-
   useEffect(() => {
     async function loadFonts() {
       await Font.loadAsync({

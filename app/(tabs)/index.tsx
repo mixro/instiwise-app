@@ -7,13 +7,9 @@ import { useTheme } from '@/src/context/ThemeContext';
 import { LinearGradient } from "expo-linear-gradient";
 import HomeStats from '@/src/components/ui/HomeStats';
 import { Link } from 'expo-router';
-import { useAuth } from '@/src/hooks/useAuth';
 
 export default function Index() {
   const { theme } = useTheme();  
-  const { user } = useAuth();
-
-  //console.log("index.js", user)
 
   return (
     <SafeAreaView edges={['top']} style={{ backgroundColor: theme.background, minHeight: "100%" }} className='px-4'>
