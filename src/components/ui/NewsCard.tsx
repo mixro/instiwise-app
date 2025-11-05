@@ -1,18 +1,39 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { useTheme } from '@/src/context/ThemeContext';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { NewsItem } from '@/src/interfaces/interfaces';
 import moment from "moment";
+import { useDislikeNewsMutation, useLikeNewsMutation } from '@/src/services/newsApi';
+import { clearInteractionError } from '@/store/slices/newsSlice';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 
 
 export default function NewsCard({ item } :  {item: NewsItem}) {
   const { theme } = useTheme();
+  const userId = useAppSelector((state) => state.auth.currentUser?._id);
+  const dispatch = useAppDispatch();
+  const [like, { isLoading: liking }] = useLikeNewsMutation();
+  const [dislike, { isLoading: disliking }] = useDislikeNewsMutation();
+
+  const pending = useAppSelector((state) => state.news.pending[item._id]);
+  const failed = useAppSelector((state) => state.news.error[item._id]);
+
+  const hasLiked = userId ? item.likes.includes(userId) : false;
+  const hasDisliked = userId ? item.dislikes.includes(userId) : false;
+  const isPending = liking || disliking || !!pending;
+
+  const handleLike = () => like(item._id);
+  const handleDislike = () => dislike(item._id);
+
+  const handleRetry = () => {
+    dispatch(clearInteractionError(item._id));
+    if (pending === 'like' || hasLiked) handleLike();
+    else handleDislike();
+  };
 
   return (
-    <View
-      style={[{backgroundColor: theme.event_card}, styles.container]}
-    >
+    <View style={[{backgroundColor: theme.event_card}, styles.container]}>
       <Text className="text-lg font-bold text-gray-900 dark:text-gray-100" style={{ color: theme.text }}>
         {item.header}
       </Text>
@@ -33,21 +54,41 @@ export default function NewsCard({ item } :  {item: NewsItem}) {
       />}
 
       <View className="flex-row" style={{gap: 35, marginTop: 10}}>
-        <View className="flex-row items-center" style={{gap: 5}}>
-          <MaterialIcons name="thumb-up" size={20} style={{ color: theme.icons }} />
-          <Text className="ml-1 text-gray-700 dark:text-gray-200 font-medium"
-            style={{ color: theme.text }}
+        <View className="flex-row items-center">
+          <TouchableOpacity
+            onPress={handleLike}
+            activeOpacity={1}
+            disabled={isPending}
+            style={{ flexDirection: 'row', width: 30, alignItems: 'center', gap: 6, opacity: isPending ? 0.9 : 1 }}
           >
-            {item.likes.length}
-          </Text>
+            <MaterialIcons name="thumb-up" size={20} 
+              color={hasLiked ? theme.red_button : theme.text}
+            />
+            <Text className="ml-1 text-gray-700 dark:text-gray-200 font-medium"
+              style={{ color: theme.text }}
+            >
+              {item.likes.length}
+            </Text>
+          </TouchableOpacity>
         </View>
-        <View className="flex-row items-center" style={{gap: 5}}>
-          <MaterialIcons name="thumb-down" size={20} style={{ color: theme.icons }} />
-          <Text className="ml-1 text-gray-700 dark:text-gray-200 font-medium"
-            style={{ color: theme.text }}
+        <View className="flex-row items-center">
+          <TouchableOpacity
+            onPress={handleDislike}
+            disabled={isPending}
+            activeOpacity={1}
+            style={{ flexDirection: 'row', alignItems: 'center', gap: 6, opacity: isPending ? 0.9 : 1 }}
           >
-            {item.dislikes.length}
-          </Text>
+            <MaterialIcons
+              name="thumb-down"
+              size={22}
+              color={hasDisliked ? theme.red_button : theme.text}
+            />
+            <Text className="ml-1 text-gray-700 dark:text-gray-200 font-medium"
+              style={{ color: theme.text }}
+            >
+              {item.dislikes.length}
+            </Text>
+          </TouchableOpacity>
         </View>
         <View className="flex-row items-center" style={{gap: 5}}>
           <Ionicons name="eye" size={20} style={{ color: theme.icons }} />
@@ -57,7 +98,17 @@ export default function NewsCard({ item } :  {item: NewsItem}) {
             {item.views.length}
           </Text>
         </View>
+
       </View>
+      {failed && (
+        <TouchableOpacity onPress={handleRetry} 
+          style={{backgroundColor: theme.menu_button}}
+        >
+          <Text style={{ color: theme.red_button, fontSize: 12, marginVertical: 4, textAlign: 'center' }}>
+            Failed to update. Tap to retry.
+          </Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };

@@ -1,0 +1,1 @@
+export type InteractionAction = 'like' | 'dislike' | null;

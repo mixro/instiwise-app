@@ -319,7 +319,7 @@ export const events: EventItem[] = [
   
 ];
 
-export const news: NewsItem[] = [
+export const news = [
   {
     _id: 1,
     header: 'New Engineering Lab Opens',

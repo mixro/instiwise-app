@@ -15,14 +15,16 @@ export type CalendarItem =
   | { type: 'header'; month: string; count: number };
 
 export interface NewsItem {
-  _id: number;
+  _id: string;
+  userId: string;
   header: string;
-  img?: string; 
   desc: string;
-  likes: number[]; 
-  dislikes: number[]; 
-  views: number[]; 
+  img?: string;
+  likes: string[];
+  dislikes: string[];
+  views: string[];
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface ProjectsItem {
