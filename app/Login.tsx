@@ -14,7 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
-import { useLoginMutation } from '@/store/authApi';
+import { useLoginMutation } from '@/src/services/authApi';
 import { setCredentials } from '@/store/slices/authSlice';
 import { useTheme } from '@/src/context/ThemeContext';
 import { useStorage } from '@/utils/useStorage';

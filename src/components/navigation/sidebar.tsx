@@ -47,7 +47,7 @@ export default function Sidebar() {
                     <Text className='text-lg font-bold' style={{color: theme.darker_text}}>Projects</Text>
                 </View>
             </Link>
-            <Link href='/setupUsername' className='mb-3'>
+            <Link href='/settings' className='mb-3'>
                 <View className='flex-row items-center gap-5' style={[{backgroundColor: theme.menu_button}, styles.item]}>
                     <Ionicons name="settings-sharp" color={theme.icons} size={24} />
                     <Text className='text-lg font-bold' style={{color: theme.darker_text}}>Settings</Text>

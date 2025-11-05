@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { useDispatch } from 'react-redux';
 import { useTheme } from '@/src/context/ThemeContext';
-import { useSetUpUsernameMutation } from '@/store/authApi';
+import { useSetUpUsernameMutation } from '@/src/services/authApi';
 import { useStorage } from '@/utils/useStorage';
 import { setCredentials } from '@/store/slices/authSlice';
 import { SafeAreaView } from 'react-native-safe-area-context';

@@ -1,6 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query';
-import { authApi } from './authApi';
+import { authApi } from '../src/services/authApi';
 import authReducer from './slices/authSlice';
 
 export const store = configureStore({

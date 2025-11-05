@@ -6,7 +6,7 @@ import { AntDesign, Entypo, FontAwesome, Ionicons, MaterialIcons } from '@expo/v
 import Authbar from '@/src/components/navigation/authbar';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
-import { useRegisterMutation } from '@/store/authApi';
+import { useRegisterMutation } from '@/src/services/authApi';
 import { setCredentials } from '@/store/slices/authSlice';
 import { router } from 'expo-router';
 import { useStorage } from '@/utils/useStorage';

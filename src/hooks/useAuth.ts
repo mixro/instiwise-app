@@ -1,8 +1,7 @@
 import { RootState } from "@/store";
-import { useGetMeQuery, useLogoutMutation } from "@/store/authApi";
+import { useGetMeQuery, useLogoutMutation } from "@/src/services/authApi";
 import { logout, setCredentials } from "@/store/slices/authSlice";
 import { useStorage } from "@/utils/useStorage";
-import { useFocusEffect } from "@react-navigation/native";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -34,6 +33,9 @@ export const useAuth = () => {
 
   // SYNC WITH API (FULL DATA FROM /me)
   useEffect(() => {
+    if (!basicUser || !currentUser) return;
+    if (currentUser._id !== basicUser.user._id) return; // only sync same user
+
     if (basicUser && currentUser?._id === basicUser.user._id) {
       const updatedUser = {
         ...currentUser!,
