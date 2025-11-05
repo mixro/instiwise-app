@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { useTheme } from '@/src/context/ThemeContext';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { NewsItem } from '@/src/interfaces/interfaces';
 import moment from "moment";
-import { useDislikeNewsMutation, useLikeNewsMutation } from '@/src/services/newsApi';
+import { useDislikeNewsMutation, useLikeNewsMutation, useViewNewsMutation } from '@/src/services/newsApi';
 import { clearInteractionError } from '@/store/slices/newsSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 
@@ -15,10 +15,12 @@ export default function NewsCard({ item } :  {item: NewsItem}) {
   const dispatch = useAppDispatch();
   const [like, { isLoading: liking }] = useLikeNewsMutation();
   const [dislike, { isLoading: disliking }] = useDislikeNewsMutation();
+  const [view] = useViewNewsMutation();
 
   const pending = useAppSelector((state) => state.news.pending[item._id]);
   const failed = useAppSelector((state) => state.news.error[item._id]);
 
+  const hasViewed = userId ? item.views.includes(userId) : false;
   const hasLiked = userId ? item.likes.includes(userId) : false;
   const hasDisliked = userId ? item.dislikes.includes(userId) : false;
   const isPending = liking || disliking || !!pending;
@@ -31,6 +33,13 @@ export default function NewsCard({ item } :  {item: NewsItem}) {
     if (pending === 'like' || hasLiked) handleLike();
     else handleDislike();
   };
+
+  // Trigger view once when card mounts
+  useEffect(() => {
+    if (userId && !hasViewed) {
+      view(item._id);
+    }
+  }, [userId, hasViewed, item._id, view]);
 
   return (
     <View style={[{backgroundColor: theme.event_card}, styles.container]}>

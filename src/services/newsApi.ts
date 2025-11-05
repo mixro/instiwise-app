@@ -131,6 +131,39 @@ export const newsApi = createApi({
         }
       },
     }),
+
+    viewNews: builder.mutation<void, string>({
+      query: (newsId) => ({
+        url: `/news/${newsId}/view`,
+        method: 'PUT', 
+      }),
+      async onQueryStarted(newsId, { dispatch, getState, queryFulfilled }) {
+        const state = getState() as RootState;
+        const userId = state.auth.currentUser?._id;
+        if (!userId) return;
+
+        // Optimistically add user to views
+        const patchResult = dispatch(
+          newsApi.util.updateQueryData('getNews', undefined, (draft) => {
+            const item = draft.find((n) => n._id === newsId);
+            if (item && !item.views.includes(userId)) {
+              item.views.push(userId);
+            }
+          })
+        );
+
+        dispatch(setPendingInteraction({ newsId, action: 'view' }));
+
+        try {
+          await queryFulfilled;
+        } catch {
+          patchResult.undo();
+          dispatch(markInteractionFailed(newsId));
+        } finally {
+          dispatch(setPendingInteraction({ newsId, action: null }));
+        }
+      },
+    }),
   }),
 });
 
@@ -138,4 +171,5 @@ export const {
   useGetNewsQuery,
   useLikeNewsMutation,
   useDislikeNewsMutation,
+  useViewNewsMutation,
 } = newsApi;

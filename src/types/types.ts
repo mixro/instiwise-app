@@ -1,1 +1,1 @@
-export type InteractionAction = 'like' | 'dislike' | null;
+export type InteractionAction = 'like' | 'dislike' | 'view' | null;
