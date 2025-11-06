@@ -11,6 +11,7 @@ export interface CurrentUser {
   connectionsCount: number;
   isActive: boolean;
   accessToken: string;
+  refreshToken: string;
   details?: {
     awards?: { name: string; date: Date; description?: string }[];
     //projects?: { _id: string; title: string; description: string }[];

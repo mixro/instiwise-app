@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList } from 'react-native'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/src/context/ThemeContext';
 import { Link } from 'expo-router';
@@ -11,7 +11,11 @@ import { useAuth } from '@/src/hooks/useAuth';
 
 export default function Profile() {
   const { theme } = useTheme();
-  const { user } = useAuth();
+  const { user, refetchProfile } = useAuth();
+
+  useEffect(() => {
+    refetchProfile();          
+  }, [refetchProfile]);
 
   return (
     <SafeAreaView edges={['top']} 

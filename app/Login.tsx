@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -12,8 +12,6 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '@/store';
 import { useLoginMutation } from '@/src/services/authApi';
 import { setCredentials } from '@/store/slices/authSlice';
 import { useTheme } from '@/src/context/ThemeContext';
@@ -21,11 +19,12 @@ import { useStorage } from '@/utils/useStorage';
 import { AntDesign, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import Authbar from '@/src/components/navigation/authbar';
 import { useAuth } from '@/src/hooks/useAuth';
+import { useAppDispatch } from '@/store/hooks';
 
 export default function Login() {
   const router = useRouter();
-  const dispatch = useDispatch();
-  const { user: currentUser } = useAuth();
+  const dispatch = useAppDispatch();
+  const { isAuthenticated } = useAuth();
   const { saveAuth } = useStorage();
   const [login, { isLoading, error }] = useLoginMutation();
   const { theme } = useTheme();
@@ -36,22 +35,20 @@ export default function Login() {
   
 
   // Auto-redirect if already logged in
-  {/*React.useEffect(() => {
-    if (currentUser) {
-      router.replace('/(tabs)');
-    }
-  }, [currentUser]);*/}
+  useEffect(() => {
+    if (isAuthenticated) router.replace('/(tabs)');
+  }, [isAuthenticated]);
 
   const handleLogin = async () => {
     try {
       const result = await login({ email, password }).unwrap();
-      console.log('API Response:', result);
       
-      // Save to Redux + SecureStore
       const userData = {
         ...result.data.user,
         accessToken: result.data.accessToken,
-      }
+        refreshToken: result.data.refreshToken,
+      };
+
       dispatch(setCredentials(userData)); 
       await saveAuth(userData);          
       

@@ -1,23 +1,22 @@
 import { View, Text, KeyboardAvoidingView, Dimensions, Platform, StyleSheet, ScrollView, TouchableOpacity, TextInput, Image, ActivityIndicator } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/src/context/ThemeContext';
 import { AntDesign, Entypo, FontAwesome, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import Authbar from '@/src/components/navigation/authbar';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '@/store';
 import { useRegisterMutation } from '@/src/services/authApi';
 import { setCredentials } from '@/store/slices/authSlice';
 import { router } from 'expo-router';
 import { useStorage } from '@/utils/useStorage';
 import { useAuth } from '@/src/hooks/useAuth';
+import { useAppDispatch } from '@/store/hooks';
 const { height } = Dimensions.get('window');
 
 export default function Signup() {
   const { theme } = useTheme();  
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const { saveAuth } = useStorage();
-  const { user: currentUser } = useAuth();  
+  const { isAuthenticated } = useAuth();  
   const [register, { isLoading, error }] = useRegisterMutation();
   
   // Form state
@@ -42,13 +41,13 @@ export default function Signup() {
   const handleSignup = async () => {
     try {
       const result = await register({ email, password, }).unwrap();
-      console.log('API Response:', result);
 
-      // Save to Redux + SecureStore
       const userData = {
         ...result.data.user,
         accessToken: result.data.accessToken,
-      }
+        refreshToken: result.data.refreshToken,
+      };
+
       dispatch(setCredentials(userData)); 
       await saveAuth(userData);
 
@@ -65,11 +64,9 @@ export default function Signup() {
   }
 
   // Auto-redirect if already logged in
-  React.useEffect(() => {
-    if (currentUser) {
-      router.replace('/(tabs)');
-    }
-  }, [currentUser]);
+  useEffect(() => {
+    if (isAuthenticated) router.replace('/(tabs)');
+  }, [isAuthenticated]);
 
   return (
     <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1, backgroundColor: theme.background }}>

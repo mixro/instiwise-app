@@ -1,19 +1,12 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { API_BASE_URL } from '@/src/constants/api';
+import { RootState } from '@/store';
+import { logout, setCredentials } from '@/store/slices/authSlice';
+import { useStorage } from '@/utils/useStorage';
 
-interface LoginCredentials {
-  email: string;
-  password: string;
-}
-
-interface RegisterCredentials {
-  email: string;
-  password: string;
-}
-
-interface SetupUsernameCredentials {
-  username: string;
-}
+interface LoginCredentials { email: string; password: string; }
+interface RegisterCredentials { email: string; password: string; }
+interface SetupUsernameCredentials { username: string; }
 
 interface AuthResponse {
   data: {
@@ -30,6 +23,7 @@ interface AuthResponse {
       isActive: boolean;
     };
     accessToken: string
+    refreshToken: string;
   }
 }
 
@@ -53,22 +47,61 @@ interface UserDetailsResponse {
   accessToken: string
 }
 
-// Custom baseQuery to include Authorization header
-const baseQuery = fetchBaseQuery({
+// ---------- Base query with auto-refresh ----------
+const rawBaseQuery = fetchBaseQuery({
   baseUrl: API_BASE_URL,
   credentials: 'include',
   prepareHeaders: (headers, { getState }) => {
-    const { currentUser } = (getState() as any).auth; // Access Redux state
+    const { currentUser } = (getState() as RootState).auth;
     if (currentUser?.accessToken) {
       headers.set('Authorization', `Bearer ${currentUser.accessToken}`);
     }
+    // Tell backend this is the mobile app (optional – skip cookie handling)
+    headers.set('x-mobile-app', 'true');
     return headers;
   },
 });
 
+const baseQueryWithReauth: typeof rawBaseQuery = async (args, api, extraOptions) => {
+  let result = await rawBaseQuery(args, api, extraOptions);
+
+  // ---- 401 → try refresh ----
+  if (result.error?.status === 401) {
+    const state = api.getState() as RootState;
+    const refreshToken = state.auth.currentUser?.refreshToken;
+
+    if (!refreshToken) {
+      api.dispatch(logout());
+      await useStorage().clearAuth();
+      return result;
+    }
+
+    const refreshResult = await rawBaseQuery(
+      { url: '/auth/refresh', method: 'POST', body: { refreshToken } },
+      api,
+      extraOptions
+    );
+
+    if (refreshResult.data) {
+      const newAccess = (refreshResult.data as any).data.accessToken;
+      const updatedUser = { ...state.auth.currentUser!, accessToken: newAccess };
+      api.dispatch(setCredentials(updatedUser));
+      await useStorage().saveAuth(updatedUser);
+
+      // Retry original request with fresh token
+      result = await rawBaseQuery(args, api, extraOptions);
+    } else {
+      // Refresh failed → force logout
+      api.dispatch(logout());
+      await useStorage().clearAuth();
+    }
+  }
+  return result;
+};
+
 export const authApi = createApi({
   reducerPath: 'authApi',
-  baseQuery,
+  baseQuery: baseQueryWithReauth,
   tagTypes: ['Auth'],
   endpoints: (builder) => ({
     register: builder.mutation<AuthResponse, RegisterCredentials>({
@@ -101,11 +134,18 @@ export const authApi = createApi({
       }),
       invalidatesTags: ['Auth'],
     }),
-    logout: builder.mutation<{ success: boolean; message: string }, void>({
-      query: () => ({
-        url: '/auth/logout',
-        method: 'POST',
-        credentials: 'include',
+    refresh: builder.mutation<{ data: { accessToken: string } }, { refreshToken: string }>({
+      query: (body) => ({ 
+        url: '/auth/refresh', 
+        method: 'POST', 
+        body         
+      }),
+    }),
+    logout: builder.mutation<{ success: boolean; message: string }, { refreshToken?: string }>({
+      query: (body) => ({ 
+        url: '/auth/logout', 
+        method: 'POST', 
+        body 
       }),
       invalidatesTags: ['Auth'],
     }),
@@ -113,9 +153,10 @@ export const authApi = createApi({
 });
 
 export const { 
-  useLoginMutation, 
-  useRegisterMutation, 
+  useLoginMutation,
+  useRegisterMutation,
   useGetMeQuery,
   useSetUpUsernameMutation,
   useLogoutMutation,
+  useRefreshMutation,
 } = authApi;
