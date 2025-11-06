@@ -185,9 +185,7 @@ export default function personalDetails() {
 
                     <View className='pt-10'>
                         <TouchableOpacity 
-                            style={{backgroundColor: Object.keys(getChangedFields()).length > 0 && validateChanges() 
-                                ? theme.blue_text
-                                : '#aaa'
+                            style={{backgroundColor: theme.blue_text
                             }} 
                             className='flex-row items-center justify-center p-4 rounded-md'
                             onPress={handleSubmit}

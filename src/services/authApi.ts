@@ -134,6 +134,13 @@ export const authApi = createApi({
       }),
       invalidatesTags: ['Auth'],
     }),
+    changeSelfPassword: builder.mutation< { success: true; message: string }, { oldPassword: string; newPassword: string }>({
+      query: (body) => ({
+        url: '/auth/me/change-password',
+        method: 'POST',
+        body,
+      }),
+    }),
     refresh: builder.mutation<{ data: { accessToken: string } }, { refreshToken: string }>({
       query: (body) => ({ 
         url: '/auth/refresh', 
@@ -160,4 +167,5 @@ export const {
   useSetUpUsernameMutation,
   useLogoutMutation,
   useRefreshMutation,
+  useChangeSelfPasswordMutation,
 } = authApi;
