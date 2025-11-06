@@ -8,13 +8,13 @@ import { useStorage } from '@/utils/useStorage';
 import { setCredentials } from '@/store/slices/authSlice';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Platform } from 'react-native';
-import { useAuth } from '@/src/hooks/useAuth';
 import { Entypo, Ionicons } from '@expo/vector-icons';
+import { useAppDispatch } from '@/store/hooks';
 
 export default function SetupUsername() {
   const [username, setUsername] = useState('');
   const [setupUsername, { isLoading, error }] = useSetUpUsernameMutation();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const { saveAuth } = useStorage();
   const router = useRouter();
   const { theme } = useTheme(); 
@@ -34,11 +34,11 @@ export default function SetupUsername() {
 
     try {
       const result = await setupUsername({ username }).unwrap();
-      console.log('API Response:', result);
 
       const userData = {
         ...result.data.user,
         accessToken: result.data.accessToken,
+        refreshToken: result.data.refreshToken,
       };
       
       dispatch(setCredentials(userData));
@@ -102,7 +102,10 @@ export default function SetupUsername() {
               </View>
             </View>
 
+            {/* ─── Error message ─── */}
             {error && <Text style={{ color: 'red', marginBottom: 10 }}>{(error as any).data?.message || 'Error setting username'}</Text>}
+
+            {/* ─── Submit button ─── */}
             <TouchableOpacity
               style={{ backgroundColor: theme.green_button, padding: 15, borderRadius: 5, alignItems: 'center' }}
               onPress={handleSetupUsername}
