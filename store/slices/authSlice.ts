@@ -5,6 +5,7 @@ export interface CurrentUser {
   username?: string; // Optional until setup
   email: string;
   img?: string;
+  phone?: string;
   bio?: string;
   isAdmin: boolean;
   projectsCount: number;

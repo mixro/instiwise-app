@@ -152,6 +152,7 @@ export const authApi = createApi({
   }),
 });
 
+export { baseQueryWithReauth }
 export const { 
   useLoginMutation,
   useRegisterMutation,

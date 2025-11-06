@@ -2,10 +2,9 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import React from 'react'
 import { useTheme } from '@/src/context/ThemeContext';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-import { Link, useRouter } from 'expo-router';
+import { Link, router } from 'expo-router';
 
 export default function Navbar({title} :{title: string}) {
-    const router = useRouter();
     const { theme } = useTheme();
 
   return (

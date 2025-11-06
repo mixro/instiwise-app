@@ -15,7 +15,7 @@ export default function Profile() {
 
   useEffect(() => {
     refetchProfile();          
-  }, [refetchProfile]);
+  }, []);
 
   return (
     <SafeAreaView edges={['top']} 
@@ -60,7 +60,7 @@ export default function Profile() {
 
               <View className='pt-4'>
                 <Text className='text-xl font-bold mb-2' style={{color: theme.blue_text}}>Bio</Text>
-                <Text style={{fontSize: 15, color: theme.text}}>⚙️ Engineer | Innovator | Problem Solver {'\n'}Building ideas that move the future. {'\n'}🔗 Turning concepts into real solutions.</Text>
+                <Text style={{fontSize: 15, color: theme.text}}>{user?.bio || 'Your bio will appear here'}</Text>
               </View>
 
               <View className='flex-row pt-6 pb-10 justify-between'>
