@@ -3,7 +3,6 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { NewsItem } from '@/src/interfaces/interfaces';
 import { RootState } from '@/store/index';
 import { API_BASE_URL } from '@/src/constants/api';
-import { useSelector } from 'react-redux';
 import { markInteractionFailed, setPendingInteraction } from '@/store/slices/newsSlice';
 
 

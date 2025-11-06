@@ -4,15 +4,13 @@ import * as Font from 'expo-font';
 import { Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
 import { ThemeProvider, useTheme } from "@/src/context/ThemeContext";
 import { Drawer } from 'expo-router/drawer';
-import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
-import { Image, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { DrawerContentScrollView } from '@react-navigation/drawer';
+import { Image, StyleSheet, Switch, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { themes } from "@/src/constants/themes";
-import { Link } from "expo-router";
 import Sidebar from "@/src/components/navigation/sidebar";
 import { store } from '@/store';
-import { Provider, useSelector } from "react-redux";
-import { useAuth } from "@/src/hooks/useAuth";
+import { Provider } from "react-redux";
 
 export default function RootLayout() {
   const { theme } = useTheme();
@@ -32,7 +30,7 @@ export default function RootLayout() {
   }, []);
 
   if (!fontLoaded) {
-    return null; // or a loading screen
+    return null; 
   }
 
 
@@ -57,6 +55,8 @@ export default function RootLayout() {
               ),
             }}
           />
+
+          {/* PUBLIC SCREENS */}
           <Drawer.Screen
             name="signup"
             options={{
@@ -94,7 +94,6 @@ export default function RootLayout() {
 function DrawerContent(props: any) {
   const { theme, toggleTheme } = useTheme();
   const isDarkMode = theme === themes.dark;
-  const { user, isLoading, signOut } = useAuth();
 
   return (
     <View style={{ flex: 1, paddingTop: 40, backgroundColor: theme.secondary_background, position: "relative" }}>
@@ -118,28 +117,6 @@ function DrawerContent(props: any) {
           />
         </View>
       </DrawerContentScrollView>
-      
-      {/* <View 
-        style={{backgroundColor: theme.green_accent}}
-        className="absolute bottom-[7%] left-3 w-[92%] rounded-lg p-1.5"
-      >
-        <Link href={'/(tabs)/profile'} asChild>
-          <TouchableOpacity 
-            className="flex-row items-center gap-2"
-          >
-            <View className="rounded-full p-0.5 border border-2 border-[#2E7D32] flex-row items-center justify-center">
-              <Image
-                source={{ uri: user?.img || 'https://www.pngkey.com/png/full/157-1579943_no-profile-picture-round.png' }}
-                style={styles.profileImg}
-              />
-            </View>
-            <View>
-              <Text style={{ fontSize: 16, marginBottom: 2 }}>{user?.username || 'No user'}</Text>
-              <Text className="font-bold text-sm text-[#2E7D32]">Student</Text>
-            </View>
-          </TouchableOpacity>
-        </Link>
-      </View> */}
     </View>
   );
 }
