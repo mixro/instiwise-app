@@ -13,13 +13,13 @@ export default function RequireAuth({ children }: Props) {
   const { isAuthenticated, isLoading } = useAuth();
   const { theme } = useTheme();
 
-  if (isLoading) {
+  {/*if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.background }}>
         <ActivityIndicator size="large" color={theme.green_text} />
       </View>
     );
-  }
+  }*/}
 
   if (!isAuthenticated) {
     return <Redirect href="/login" />;
