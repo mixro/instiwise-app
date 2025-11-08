@@ -10,6 +10,7 @@ import SearchBar from '@/src/components/ui/SearchBar';
 import { ScrollView } from 'react-native';
 import { useGetEventsQuery } from '@/src/services/eventsApi';
 import { useFocusEffect } from 'expo-router';
+import { useAppSelector } from '@/store/hooks';
 
 type FilterType = 'all' | 'upcoming' | 'favourites' | 'ongoing'  | 'past';
 
@@ -18,6 +19,7 @@ export default function Calendar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
   const [isManualRefresh, setIsManualRefresh] = useState(false);
+  const userId = useAppSelector((state) => state.auth.currentUser?._id);
 
   const { data: events = [], isLoading, isFetching, refetch } = useGetEventsQuery();
 
@@ -67,7 +69,6 @@ export default function Calendar() {
   // Filtered events based on activeFilter and search
   const filteredEvents = useMemo(() => {
     const now = new Date();
-    const userId = ''; // Replace with actual userId from auth if needed for favourites
 
     let filtered = events.filter((event) => {
       if (searchQuery) {
@@ -82,10 +83,9 @@ export default function Calendar() {
       }
 
       const { start, end } = getEventStartEnd(event);
-
       switch (activeFilter) {
         case 'favourites':
-          return event.isFavorite; // Assuming isFavorite is per-event; update if per-user
+          return userId ? event.favorites.includes(userId) : false;
         case 'ongoing':
           return start <= now && now <= end;
         case 'upcoming':

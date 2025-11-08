@@ -5,14 +5,21 @@ import { useTheme } from '@/src/context/ThemeContext';
 import { Entypo, Feather, FontAwesome6, Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { useToggleFavoriteMutation } from '@/src/services/eventsApi';
 import * as Haptics from 'expo-haptics';
+import { useAppSelector } from '@/store/hooks';
 
 export default function EventCard({ eventItem }: { eventItem: EventItem }) {
     const { theme } = useTheme();
     const [toggleFavorite, { isLoading }] = useToggleFavoriteMutation();
+    const userId = useAppSelector((state) => state.auth.currentUser?._id);
+    
+    const isFavorited = userId ? (eventItem.favorites ?? []).includes(userId) : false;
+    //const favoriteCount = (eventItem.favorites ?? []).length;
     
     const handleFavorite = () => {
       Haptics.selectionAsync();
-      toggleFavorite(eventItem._id);
+      if (userId) {
+        toggleFavorite(eventItem._id);
+      }
     };
   
   return (
@@ -25,7 +32,7 @@ export default function EventCard({ eventItem }: { eventItem: EventItem }) {
               {eventItem.date}
             </Text>
             <TouchableOpacity onPress={handleFavorite} disabled={isLoading}>
-              {eventItem.isFavorite ? (
+              {isFavorited ? (
                 <MaterialIcons name="star" size={27} color="#f39e00ff" />
               ) : (
                 <MaterialIcons name="star-border" size={27} color="#f39e00ff" />

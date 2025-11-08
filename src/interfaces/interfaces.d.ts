@@ -7,7 +7,7 @@ export interface EventItem {
   date: string; // "DD/MM/YYYY"
   start: string; // "09:00 AM"
   end: string; // "11:00 AM"
-  isFavorite: boolean;
+  favorites: string[];
   img?: string;
   desc: string;
   createdAt: string;
