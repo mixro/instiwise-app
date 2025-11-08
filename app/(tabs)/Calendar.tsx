@@ -11,7 +11,7 @@ import { ScrollView } from 'react-native';
 import { useGetEventsQuery } from '@/src/services/eventsApi';
 import { useFocusEffect } from 'expo-router';
 
-type FilterType = 'all' | 'favourites' | 'ongoing' | 'upcoming' | 'past';
+type FilterType = 'all' | 'upcoming' | 'favourites' | 'ongoing'  | 'past';
 
 export default function Calendar() {
   const { theme } = useTheme();
@@ -67,6 +67,7 @@ export default function Calendar() {
   // Filtered events based on activeFilter and search
   const filteredEvents = useMemo(() => {
     const now = new Date();
+    const userId = ''; // Replace with actual userId from auth if needed for favourites
 
     let filtered = events.filter((event) => {
       if (searchQuery) {
@@ -84,7 +85,7 @@ export default function Calendar() {
 
       switch (activeFilter) {
         case 'favourites':
-          return event.isFavorite;
+          return event.isFavorite; // Assuming isFavorite is per-event; update if per-user
         case 'ongoing':
           return start <= now && now <= end;
         case 'upcoming':
@@ -100,51 +101,74 @@ export default function Calendar() {
     return filtered;
   }, [events, activeFilter, searchQuery]);
 
-  // Group filtered events by month
-  const groupedEvents = useMemo(() => {
-    return filteredEvents.reduce((groups, event) => {
-      const date = parseDate(event.date);
-      const monthKey = date.toLocaleString('default', { month: 'long' });
-      if (!groups[monthKey]) {
-        groups[monthKey] = [];
-      }
-      groups[monthKey].push(event);
-      return groups;
-    }, {} as { [key: string]: EventItem[] });
-  }, [filteredEvents]);
+  // Group filtered events by "Month Year"
+const groupedEvents = useMemo(() => {
+  return filteredEvents.reduce((groups, event) => {
+    const date = parseDate(event.date);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const key = `${year}-${month}`; // "2025-11"
 
-  // Sort events within each month by date ascending
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(event);
+    return groups;
+  }, {} as { [key: string]: EventItem[] });
+}, [filteredEvents]);
+
+  // Sort events within each group by date ascending
   const sortedGroupedEvents = useMemo(() => {
     const sorted = { ...groupedEvents };
-    Object.keys(sorted).forEach((month) => {
-      sorted[month].sort((a, b) => parseDate(a.date).getTime() - parseDate(b.date).getTime());
+    Object.keys(sorted).forEach((monthYear) => {
+      sorted[monthYear].sort((a, b) => parseDate(a.date).getTime() - parseDate(b.date).getTime());
     });
     return sorted;
   }, [groupedEvents]);
 
-  // Flatten with headers
-  const flatData: CalendarItem[] = useMemo(() => {
-    let data: CalendarItem[] = [];
-    const months = Object.keys(sortedGroupedEvents).sort((a, b) => {
-      const monthA = new Date(`1 ${a} 2025`).getMonth();
-      const monthB = new Date(`1 ${b} 2025`).getMonth();
-      return monthA - monthB;
-    });
+  // Flatten with headers: current → future chrono → past chrono
+const flatData: CalendarItem[] = useMemo(() => {
+  const data: CalendarItem[] = [];
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
+  const currentKey = `${currentYear}-${currentMonth}`;
 
-    const currentMonth = new Date().toLocaleString('default', { month: 'long' });
-    const currentMonthIndex = months.indexOf(currentMonth);
-    if (currentMonthIndex > -1) {
-      const [current] = months.splice(currentMonthIndex, 1);
-      months.unshift(current);
+  const keys = Object.keys(sortedGroupedEvents);
+  if (keys.length === 0) return data;
+
+  const current: string[] = [];
+  const future: string[] = [];
+  const past: string[] = [];
+
+  keys.forEach((key) => {
+    if (key === currentKey) {
+      current.push(key);
+    } else if (key > currentKey) {
+      future.push(key);
+    } else {
+      past.push(key);
     }
+  });
 
-    months.forEach((month) => {
-      data.push({ type: 'header', month, count: sortedGroupedEvents[month].length });
-      data.push(...sortedGroupedEvents[month].map((event) => ({ ...(event as EventItem), type: 'event' } as CalendarItem)));
+  future.sort();
+  past.sort();
+
+  const ordered = [...current, ...future, ...past];
+
+  ordered.forEach((key) => {
+    const [year, month] = key.split('-');
+    const date = new Date(Number(year), Number(month) - 1, 1);
+    const displayMonth = date.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+
+    data.push({ 
+      type: 'header', 
+      month: displayMonth, 
+      count: sortedGroupedEvents[key].length 
     });
+    data.push(...sortedGroupedEvents[key].map(event => ({ ...event, type: 'event' as const })));
+  });
 
-    return data;
-  }, [sortedGroupedEvents]);
+  return data;
+}, [sortedGroupedEvents]);
 
   if (isLoading && !isFetching) {
     return (
@@ -178,7 +202,7 @@ export default function Calendar() {
                   showsHorizontalScrollIndicator={false}
                   contentContainerStyle={{ flexDirection: 'row', gap: 10 }}
                 >
-                  {['all', 'favourites', 'ongoing', 'upcoming', 'past'].map((filter) => (
+                  {['all', 'upcoming', 'favourites', 'ongoing', 'past'].map((filter) => (
                     <TouchableOpacity 
                       key={filter}
                       onPress={() => setActiveFilter(filter as FilterType)}

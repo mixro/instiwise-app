@@ -7,6 +7,7 @@ import moment from "moment";
 import { useDislikeNewsMutation, useLikeNewsMutation, useViewNewsMutation } from '@/src/services/newsApi';
 import { clearInteractionError } from '@/store/slices/newsSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import * as Haptics from 'expo-haptics';
 
 
 export default function NewsCard({ item } :  {item: NewsItem}) {
@@ -25,8 +26,14 @@ export default function NewsCard({ item } :  {item: NewsItem}) {
   const hasDisliked = userId ? item.dislikes.includes(userId) : false;
   const isPending = liking || disliking || !!pending;
 
-  const handleLike = () => like(item._id);
-  const handleDislike = () => dislike(item._id);
+  const handleLike = () => {
+    Haptics.selectionAsync();
+    like(item._id)
+  };
+  const handleDislike = () => {
+    Haptics.selectionAsync();
+    dislike(item._id)
+  };
 
   const handleRetry = () => {
     dispatch(clearInteractionError(item._id));

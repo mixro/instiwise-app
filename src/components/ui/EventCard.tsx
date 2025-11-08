@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { EventItem } from '../../interfaces/interfaces';
 import { useTheme } from '@/src/context/ThemeContext';
-import { Entypo, Feather, Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { Entypo, Feather, FontAwesome6, Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { useToggleFavoriteMutation } from '@/src/services/eventsApi';
 import * as Haptics from 'expo-haptics';
 
@@ -21,25 +21,26 @@ export default function EventCard({ eventItem }: { eventItem: EventItem }) {
       style={[{backgroundColor: theme.event_card}, styles.container]}
     >
         <View className="flex-row justify-between" style={{ paddingVertical: 2}}>
-            <Text className="text-sm" style={{ color: theme.text }}>
+            <Text style={{ color: theme.text, fontSize: 14 }}>
               {eventItem.date}
             </Text>
             <TouchableOpacity onPress={handleFavorite} disabled={isLoading}>
               {eventItem.isFavorite ? (
-                <MaterialIcons name="star" size={26} color="#f39e00ff" />
+                <MaterialIcons name="star" size={27} color="#f39e00ff" />
               ) : (
-                <MaterialIcons name="star-border" size={26} color="#f39e00ff" />
+                <MaterialIcons name="star-border" size={27} color="#f39e00ff" />
               )}
             </TouchableOpacity>
         </View>
 
         <View className='flex-row items-center gap-2 mb-2'>
-          <Text>{eventItem.start}</Text>
-          <Entypo name="arrow-long-right" size={20} color="#0a7975ff" />
-          <Text>{eventItem.end}</Text>
+          <MaterialCommunityIcons name="clock" size={16} color="#0a7975ff" />
+          <Text style={{ color: theme.text, fontSize: 13 }}>{eventItem.start}</Text>
+          <FontAwesome6 name="arrow-right" size={15} color="#0a7975ff" />
+          <Text style={{ color: theme.text, fontSize: 13 }}>{eventItem.end}</Text>
         </View>
 
-        <Text className="font-bold text-lg" style={{ color: theme.text, marginBottom: 6 }}>
+        <Text className="font-bold" style={{ color: theme.text, marginBottom: 15, fontSize: 18 }}>
           {eventItem.header}          
         </Text>
 
