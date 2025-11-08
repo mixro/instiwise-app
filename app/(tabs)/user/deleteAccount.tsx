@@ -41,8 +41,6 @@ export default function deleteAccount() {
       await signOut();
       router.replace('/login');
     } catch (err: any) {
-      console.error('Failed to delete account:', err); // ← DEBUG
-
       Alert.alert('Error', err?.data?.message || 'Failed to delete account');
     }
   };

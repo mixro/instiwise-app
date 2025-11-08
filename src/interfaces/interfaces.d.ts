@@ -1,18 +1,22 @@
 export interface EventItem {
-  _id: number;
-  title: string;
+  _id: string;
+  userId: string;
+  header: string;
   location: string;
   category: string;
-  date: string;
-  start: string;
-  end: string;
+  date: string; // "DD/MM/YYYY"
+  start: string; // "09:00 AM"
+  end: string; // "11:00 AM"
   isFavorite: boolean;
-  description?: string; 
+  img?: string;
+  desc: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export type CalendarItem = 
-  | (EventItem & { type: 'event' })
-  | { type: 'header'; month: string; count: number };
+  | { type: 'header'; month: string; count: number }
+  | ({ type: 'event' } & EventItem);
 
 export interface NewsItem {
   _id: string;

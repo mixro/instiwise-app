@@ -3,6 +3,7 @@ import { setupListeners } from '@reduxjs/toolkit/query';
 import { authApi } from '../src/services/authApi';
 import { newsApi } from '../src/services/newsApi';
 import { userApi } from '../src/services/userApi';
+import { eventsApi } from '../src/services/eventsApi';
 import authReducer from './slices/authSlice';
 import newsReducer from './slices/newsSlice';
 
@@ -11,6 +12,7 @@ export const store = configureStore({
     [authApi.reducerPath]: authApi.reducer,
     [newsApi.reducerPath]: newsApi.reducer,
     [userApi.reducerPath]: userApi.reducer,
+    [eventsApi.reducerPath]: eventsApi.reducer,
 
     auth: authReducer,
     news: newsReducer,
@@ -19,7 +21,8 @@ export const store = configureStore({
     getDefaultMiddleware().concat(
       authApi.middleware,
       newsApi.middleware,
-      userApi.middleware
+      userApi.middleware,
+      eventsApi.middleware
     ),
 });
 

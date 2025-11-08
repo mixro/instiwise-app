@@ -4,24 +4,12 @@ import { NewsItem } from '@/src/interfaces/interfaces';
 import { RootState } from '@/store/index';
 import { API_BASE_URL } from '@/src/constants/api';
 import { markInteractionFailed, setPendingInteraction } from '@/store/slices/newsSlice';
+import { baseQueryWithReauth } from './authApi';
 
-
-// Custom baseQuery to include Authorization header
-const baseQuery = fetchBaseQuery({
-  baseUrl: API_BASE_URL,
-  credentials: 'include',
-  prepareHeaders: (headers, { getState }) => {
-    const { currentUser } = (getState() as any).auth; // Access Redux state
-    if (currentUser?.accessToken) {
-      headers.set('Authorization', `Bearer ${currentUser.accessToken}`);
-    }
-    return headers;
-  },
-});
 
 export const newsApi = createApi({
   reducerPath: 'newsApi',
-  baseQuery,
+  baseQuery: baseQueryWithReauth,
   tagTypes: ['News'],
   endpoints: (builder) => ({
     getNews: builder.query<NewsItem[], void>({
