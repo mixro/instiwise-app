@@ -1,8 +1,6 @@
-// src/api/newsApi.ts
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi } from '@reduxjs/toolkit/query/react';
 import { NewsItem } from '@/src/interfaces/interfaces';
 import { RootState } from '@/store/index';
-import { API_BASE_URL } from '@/src/constants/api';
 import { markInteractionFailed, setPendingInteraction } from '@/store/slices/newsSlice';
 import { baseQueryWithReauth } from './authApi';
 

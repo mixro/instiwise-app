@@ -1,13 +1,28 @@
-import { View, Text, StyleSheet, Image, Touchable, TouchableOpacity, Pressable } from 'react-native'
+import { View, Text, StyleSheet, Image, TouchableOpacity, Pressable } from 'react-native'
 import React from 'react'
 import { ProjectsItem } from '@/src/interfaces/interfaces'
 import { useTheme } from '@/src/context/ThemeContext';
 import moment from 'moment';
-import { Feather } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
+import { useLikeProjectMutation } from '@/src/services/projectsApi';
+import { useAppSelector } from '@/store/hooks';
+import * as Haptics from 'expo-haptics';
+
 
 export default function ProjectCard({ project } : {project: ProjectsItem} ) {
     const { theme } = useTheme();
+    const [likeProject, { isLoading }] = useLikeProjectMutation();
+    const userId = useAppSelector(state => state.auth.currentUser?._id);
+
+    const isLiked = userId ? (project.likes ?? []).includes(userId) : false;
+
+    const handleLike = () => {
+        Haptics.selectionAsync();
+        if (userId) {
+            likeProject(project._id);
+        }
+    };
 
   return (
     <View
@@ -26,20 +41,23 @@ export default function ProjectCard({ project } : {project: ProjectsItem} ) {
             <View className='flex-row items-center' style={{paddingTop: 5}}>
                 <View className='flex-row flex-1' style={{gap: 10}}>
                     <Image
-                        source={{ uri: 'https://i.pravatar.cc/100?img=12' }}
+                        source={{ uri: project.userId?.img || 'https://www.pngkey.com/png/full/157-1579943_no-profile-picture-round.png' }}
                         style={styles.profileImg}
                     />
                     <View>
                         <Text className='' style={{ color: theme.text, fontSize: 16 }}>
-                            {project.owner}
+                            {project.userId.username}
                         </Text>
                         <Text className="text-sm" style={{ color: theme.blue_text }}>
                             {moment(project.createdAt).fromNow()}
                         </Text>
                     </View>
                 </View>
-                <TouchableOpacity>
-                    <Feather name="heart" size={30} color="red" />
+                <TouchableOpacity onPress={handleLike} disabled={isLoading}>
+                    {isLiked 
+                        ? <Ionicons name="heart-sharp" size={40} color="red" />
+                        : <Ionicons name="heart-outline" size={40} color="red" />
+                    }                    
                 </TouchableOpacity>
             </View>
             <Text className="text-xl font-bold mt-3 text-gray-900 dark:text-gray-100" style={{ color: theme.text }}>

@@ -1,61 +1,62 @@
 import { View, Text, FlatList, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { projects } from '@/src/static/dummyData';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ProjectCard from '@/src/components/ui/ProjectCard';
 import SearchBar from '@/src/components/ui/SearchBar';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '@/src/context/ThemeContext';
-import { ProjectsItem } from '../../../src/interfaces/interfaces';
+import { useFocusEffect } from 'expo-router';
+import { RefreshControl } from 'react-native';
+import { useGetProjectsQuery } from '@/src/services/projectsApi';
+
+type SortOption = 'title' | 'category' | 'status' | 'createdAt' | 'likes';
 
 export default function Projects() {
   const { theme } = useTheme();
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [sortMenuVisible, setSortMenuVisible] = useState(false);
-  const [sortOption, setSortOption] = useState<'title' | 'category' | 'status' | 'createdAt' | 'likes'>('title');
+  const [sortOption, setSortOption] = useState<SortOption>('createdAt');
+  const [isManualRefresh, setIsManualRefresh] = useState(false);
 
-  const handleSearch = (text: string) => {
-    setSearchQuery(text.toLowerCase());
-  };
+  const { data: projects = [], isLoading, isFetching, refetch } = useGetProjectsQuery();
 
-  const filteredProjects = searchQuery
-    ? projects.filter((item) =>
-        item.title.toLowerCase().includes(searchQuery) ||
-        item.owner?.toLowerCase().includes(searchQuery)
-      )
-    : projects;
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch])
+  );
 
-  const handleSortPress = () => {
-    setSortMenuVisible((prev) => !prev);
-  };
+  const onRefresh = useCallback(() => {
+    setIsManualRefresh(true);
+    refetch().finally(() => setIsManualRefresh(false));
+  }, [refetch]);
 
-  const handleSortSelect = (option: 'createdAt' | 'category' | 'title' | 'status' | 'likes') => {
-    setSortOption(option);
-    setSortMenuVisible(false);
-  };
+  const filteredAndSorted = React.useMemo(() => {
+    let filtered = projects.filter(p =>
+      p.title.toLowerCase().includes(searchQuery) ||
+      (p.userId.username?.toLowerCase().includes(searchQuery) ?? false)
+    );
 
-  const compareValues = (a: any, b: any) => {
-    if (a < b) return -1;
-    if (a > b) return 1;
-    return 0;
-  };
-
-  const sortedProjects = [...filteredProjects].sort((a, b) => {
-    switch (sortOption) {
-      case 'createdAt':
-        return compareValues(new Date(a.createdAt || '').getTime(), new Date(b.createdAt || '').getTime());
-      case 'category':
-        return compareValues(a.category.toLowerCase(), b.category.toLowerCase());
-      case 'title':
-        return compareValues(a.title.toLowerCase(), b.title.toLowerCase());
-      case 'status':
-        return compareValues(a.status || '', b.status || '');
-      case 'likes':
-        return compareValues((a.likes?.length || 0), (b.likes?.length || 0));
-      default:
-        return 0;
-    }
-  });
+    return filtered.sort((a, b) => {
+      switch (sortOption) {
+        case 'createdAt':
+          const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          return timeB - timeA;
+        case 'likes':
+          return (b.likes?.length || 0) - (a.likes?.length || 0);
+        case 'title':
+          return a.title.localeCompare(b.title);
+        case 'category':
+          return (a.category || '').localeCompare(b.category || '');
+        case 'status':
+          return (a.status || '').localeCompare(b.status || '');
+        default:
+          return 0;
+      }
+    });
+  }, [projects, searchQuery, sortOption]);
 
   return (
     <SafeAreaView edges={['top']} style={{ backgroundColor: theme.background, minHeight: "100%" }} className='px-3'>
@@ -63,30 +64,29 @@ export default function Projects() {
         <View className="absolute border right-2 dark:bg-gray-800 p-3 rounded-lg shadow-md z-10"
           style={{ top: 110, borderColor: "#464646ff", backgroundColor: "white"}}
         >
-          <TouchableOpacity onPress={() => handleSortSelect('createdAt')} className="py-2">
-            <Text className="text-gray-900 dark:text-gray-100">Sort by Date</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => handleSortSelect('category')} className="py-2">
-            <Text className="text-gray-900 dark:text-gray-100">Sort by Category</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => handleSortSelect('title')} className="py-2">
-            <Text className="text-gray-900 dark:text-gray-100">Sort by Title</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => handleSortSelect('status')} className="py-2">
-            <Text className="text-gray-900 dark:text-gray-100">Sort by Status</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => handleSortSelect('likes')} className="py-2">
-            <Text className="text-gray-900 dark:text-gray-100">Sort by Likes</Text>
-          </TouchableOpacity>
+          {(['createdAt', 'title', 'category', 'status', 'likes'] as SortOption[]).map(opt => (
+            <TouchableOpacity key={opt} onPress={() => { setSortOption(opt); setSortMenuVisible(false); }} className="py-2">
+              <Text className="text-gray-900 dark:text-gray-100">
+                Sort by {opt === 'createdAt' ? 'Date' : opt.charAt(0).toUpperCase() + opt.slice(1)}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
       )}
 
       <FlatList
-        data={sortedProjects}
+        data={filteredAndSorted}
         keyExtractor={(item) => item._id.toString()}
         renderItem={({ item }) => <ProjectCard project={item} />}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ margin: 0 }}
+        refreshControl={
+          <RefreshControl 
+            refreshing={isManualRefresh} 
+            onRefresh={onRefresh} 
+            colors={[theme.blue_text]} 
+          />
+        }
         ListHeaderComponent={
           <>
             <View className='flex-row justify-between gap-2 items-center pt-5'>
@@ -94,10 +94,10 @@ export default function Projects() {
                 <SearchBar
                   placeholder='Search projects'
                   value={searchQuery}
-                  onChangeText={handleSearch}
+                  onChangeText={setSearchQuery}
                 />
               </View>
-              <TouchableOpacity onPress={handleSortPress}>
+              <TouchableOpacity onPress={() => setSortMenuVisible(prev => !prev)}>
                 <MaterialIcons name="sort" size={36} style={{ color: theme.text }} className='mb-7' />
               </TouchableOpacity>
             </View>

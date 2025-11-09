@@ -4,6 +4,7 @@ import { authApi } from '../src/services/authApi';
 import { newsApi } from '../src/services/newsApi';
 import { userApi } from '../src/services/userApi';
 import { eventsApi } from '../src/services/eventsApi';
+import { projectsApi } from '../src/services/projectsApi';
 import authReducer from './slices/authSlice';
 import newsReducer from './slices/newsSlice';
 
@@ -13,6 +14,7 @@ export const store = configureStore({
     [newsApi.reducerPath]: newsApi.reducer,
     [userApi.reducerPath]: userApi.reducer,
     [eventsApi.reducerPath]: eventsApi.reducer,
+    [projectsApi.reducerPath]: projectsApi.reducer,
 
     auth: authReducer,
     news: newsReducer,
@@ -22,7 +24,8 @@ export const store = configureStore({
       authApi.middleware,
       newsApi.middleware,
       userApi.middleware,
-      eventsApi.middleware
+      eventsApi.middleware,
+      projectsApi.middleware
     ),
 });
 

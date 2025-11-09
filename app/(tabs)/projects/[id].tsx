@@ -46,7 +46,7 @@ export default function project() {
               />
             </View>
             <View>
-              <Text style={{ fontSize: 17, color: theme.text, marginBottom: 3 }}>{project.owner}</Text>
+              <Text style={{ fontSize: 17, color: theme.text, marginBottom: 3 }}>{project.userId.username}</Text>
               <Text className="font-bold text-md" style={{color: theme.green_text}}>Student</Text>
             </View>
           </View>
@@ -59,7 +59,7 @@ export default function project() {
             </View>
             <View className='flex-row gap-3' style={{marginBottom: 5}}>
               <Text className='font-bold text-lg' style={{color: theme.text}}>Owner:</Text>
-              <Text className="text-lg" style={{color: theme.text}}>{project.owner}</Text>
+              <Text className="text-lg" style={{color: theme.text}}>{project.userId.username}</Text>
             </View>
             <View className='flex-row gap-3' style={{marginBottom: 5}}>
               <Text className='font-bold text-lg' style={{color: theme.text}}>Created at:</Text>

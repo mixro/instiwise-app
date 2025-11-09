@@ -15,7 +15,6 @@ export default function create() {
       desc: '',
       category: '',
       problem: '', 
-      owner: '',
       duration: '',
       status: '',
   });
@@ -118,17 +117,6 @@ export default function create() {
                       onChangeText={(text) => handleChange('problem', text)}
                       style={styles.input}
                       placeholder={"Project problem"}
-                      placeholderTextColor="#494949ff"
-                  />
-              </View>
-              <View className='pt-6'>
-                  <Text className='text-lg mb-3 font-medium' style={{color: theme.text}}>Owner</Text>
-                  <TextInput
-                      className='py-3 font-medium'
-                      value={inputs.owner}
-                      onChangeText={(text) => handleChange('owner', text)}
-                      style={styles.input}
-                      placeholder={"Project owner"}
                       placeholderTextColor="#494949ff"
                   />
               </View>

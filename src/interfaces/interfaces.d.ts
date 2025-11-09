@@ -31,24 +31,41 @@ export interface NewsItem {
   updatedAt: string;
 }
 
+export interface ProjectUser {
+  _id: string;
+  email: string;
+  username: string;
+  img?: string;
+  awards: any[];
+  connectionsCount: number;
+  projectsCount: number;
+  isAdmin: boolean;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface ProjectsItem {
-  _id: number,
+  _id: string;
   title: string;
-  userId: string; 
+  userId: ProjectUser; // ← populated user object
   description: string;
   img: string;
   category: string;
+
+  // Optional fields
   problem?: string;
-  owner?: string;
+  collaborators?: string[];
   duration?: string;
   status?: 'in progress' | 'on hold' | 'completed';
-  goals: any[]; 
-  resources?: any[];
-  budget?: any[];
-  scope?: any[];
-  plan?: any[];
-  challenges?: any[];
-  likes?: any[];
-  createdAt?: string;
-  updatedAt?: string;
+  goals?: string[];
+  resources?: string[];
+  budget?: number[];
+  scope?: string[];
+  plan?: string[];
+  challenges?: string[];
+
+  likes: string[]; // ← array of user IDs (strings)
+  createdAt: string;
+  updatedAt: string;
 }
