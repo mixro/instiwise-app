@@ -9,9 +9,10 @@ export const projectsApi = createApi({
   baseQuery:  baseQueryWithReauth,
   tagTypes: ['Projects'],
   endpoints: (builder) => ({
+    // All projects
     getProjects: builder.query<ProjectsItem[], void>({
       query: () => '/projects',
-      transformResponse: (response: { data: ProjectsItem[] }) => response.data,
+      transformResponse: (res: { data: ProjectsItem[] }) => res.data,
       providesTags: (result) =>
         result
           ? [
@@ -21,11 +22,28 @@ export const projectsApi = createApi({
           : [{ type: 'Projects', id: 'LIST' }],
     }),
 
+    getProjectById: builder.query<ProjectsItem | undefined, string>({
+      queryFn: (id: string, { getState }): { data: ProjectsItem | undefined } => {
+        const state = getState() as RootState;
+        const projectsResult = projectsApi.endpoints.getProjects.select(undefined)(state);
+        const project = projectsResult.data?.find((p) => p._id === id);
+        return { data: project };
+      },
+      providesTags: (result, error, id) => [
+        { type: 'Projects', id },
+        { type: 'Projects', id: 'LIST' },
+      ],
+    }),
+
     likeProject: builder.mutation<void, string>({
       query: (projectId) => ({
         url: `/projects/${projectId}/like`,
         method: 'PUT',
       }),
+      invalidatesTags: (result, error, projectId) => [
+        { type: 'Projects', id: projectId },
+        { type: 'Projects', id: 'LIST' },
+      ],
       async onQueryStarted(projectId, { dispatch, getState, queryFulfilled }) {
         const state = getState() as RootState;
         const userId = state.auth.currentUser?._id;
@@ -33,15 +51,12 @@ export const projectsApi = createApi({
 
         const patchResult = dispatch(
           projectsApi.util.updateQueryData('getProjects', undefined, (draft) => {
-            const project = draft.find(p => p._id === projectId);
-            if (project) {
-              if (!project.likes) {
-                project.likes = [];
-              }
-              if (project.likes.includes(userId)) {
-                project.likes = project.likes.filter(id => id !== userId);
+            const p = draft.find((x) => x._id === projectId);
+            if (p) {
+              if (p.likes.includes(userId)) {
+                p.likes = p.likes.filter((id) => id !== userId);
               } else {
-                project.likes.push(userId);
+                p.likes.push(userId);
               }
             }
           })
@@ -59,5 +74,6 @@ export const projectsApi = createApi({
 
 export const {
   useGetProjectsQuery,
+  useGetProjectByIdQuery,
   useLikeProjectMutation,
 } = projectsApi;

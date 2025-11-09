@@ -1,17 +1,54 @@
-import { View, Text, ScrollView, Image, StyleSheet } from 'react-native'
+import { View, Text, ScrollView, Image, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native'
 import React from 'react'
-import { useLocalSearchParams } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { projects } from '@/src/static/dummyData';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/src/context/ThemeContext';
 import ProjectDetails from '@/src/components/ui/ProjectDetails';
 import moment from 'moment';
+import * as Haptics from 'expo-haptics';
+import { useAppSelector } from '@/store/hooks';
+import { useGetProjectByIdQuery, useLikeProjectMutation } from '@/src/services/projectsApi';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function project() {
   const { theme } = useTheme();
-  const { id } = useLocalSearchParams();
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const userId = useAppSelector(state => state.auth.currentUser?._id);
 
-  const project = projects.filter((item) => item._id.toString().includes(id.toString()))[0];
+  const { data: project, isLoading, isFetching, refetch } = useGetProjectByIdQuery(id, {
+    skip: !id,
+    selectFromResult: ({ data, ...other }) => ({
+      data,
+      ...other,
+    }),
+  });
+
+  const [likeProject, { isLoading: islikeLoading }] = useLikeProjectMutation();
+  
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (id) refetch();
+    }, [id, refetch])
+  );
+
+  if (isLoading || !project) {
+    return (
+      <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.background }}>
+        <ActivityIndicator size="large" color={theme.blue_text} />
+      </SafeAreaView>
+    );
+  }
+
+  const isLiked = userId ? (project.likes ?? []).includes(userId) : false;
+
+  const handleLike = () => {
+    Haptics.selectionAsync();
+    if (userId) {
+      likeProject(project._id);
+    }
+  };
 
   return (
     <SafeAreaView edges={['top']} 
@@ -36,51 +73,55 @@ export default function project() {
             </Text>
           </View>
 
-          <View className="flex-row items-center gap-2" style={{ paddingTop: 36 }}>
-            <View className="rounded-full p-0.5 border border-2 flex-row items-center justify-center"
-              style={{borderColor: theme.text}}
-            >
-              <Image
-                source={{ uri: 'https://i.pravatar.cc/100?img=12' }}
-                style={styles.profileImg}
-              />
+          <View className='flex-row items-center justify-between' style={{ paddingTop: 36 }}>
+            <View className="flex-row items-center gap-2">
+              <View className="rounded-full p-0.5 border border-2 flex-row items-center justify-center"
+                style={{borderColor: theme.text}}
+              >
+                <Image
+                  source={{ uri: project.userId?.img || 'https://www.pngkey.com/png/full/157-1579943_no-profile-picture-round.png' }}
+                  style={styles.profileImg}
+                />
+              </View>
+              <View>
+                <Text style={{ fontSize: 17, color: theme.text, marginBottom: 3 }}>{project.userId.username}</Text>
+                <Text className="font-bold text-md" style={{color: theme.green_text}}>Student</Text>
+              </View>
             </View>
-            <View>
-              <Text style={{ fontSize: 17, color: theme.text, marginBottom: 3 }}>{project.userId.username}</Text>
-              <Text className="font-bold text-md" style={{color: theme.green_text}}>Student</Text>
+
+            <View className='flex-row items-center justify-center'>
+              <TouchableOpacity onPress={handleLike} disabled={islikeLoading}>
+                  {isLiked 
+                      ? <Ionicons name="heart-sharp" size={40} color="red" />
+                      : <Ionicons name="heart-outline" size={40} color="red" />
+                  }                    
+              </TouchableOpacity>
             </View>
           </View>
 
           <View style={{paddingTop: 30}}>
-            <Text className='text-xl font-semibold' style={{color: theme.blue_text, marginBottom: 10}}>Project Details</Text>
+            <Text className='text-xl font-semibold' style={{color: theme.blue_text, marginBottom: 10}}>
+              Project Details
+            </Text>
+
             <View className='flex-row gap-3' style={{marginBottom: 5}}>
               <Text className='font-bold text-lg' style={{color: theme.text}}>Likes:</Text>
               <Text className="text-lg" style={{color: theme.text}}>{project.likes?.length}</Text>
             </View>
-            <View className='flex-row gap-3' style={{marginBottom: 5}}>
-              <Text className='font-bold text-lg' style={{color: theme.text}}>Owner:</Text>
-              <Text className="text-lg" style={{color: theme.text}}>{project.userId.username}</Text>
-            </View>
-            <View className='flex-row gap-3' style={{marginBottom: 5}}>
-              <Text className='font-bold text-lg' style={{color: theme.text}}>Created at:</Text>
-              <Text className="text-lg" style={{color: theme.text}}>{moment(project.createdAt).fromNow()}</Text>
-            </View>
-            <View className='flex-row gap-3' style={{marginBottom: 5}}>
-              <Text className='font-bold text-lg' style={{color: theme.text}}>Category:</Text>
-              <Text className="text-lg" style={{color: theme.text}}>{project.category}</Text>
-            </View>
-            <View className='flex-row gap-3' style={{marginBottom: 5}}>
-              <Text className='font-bold text-lg' style={{color: theme.text}}>Problem:</Text>
-              <Text className="text-lg" style={{color: theme.text}}>{project.problem}</Text>
-            </View>
-            <View className='flex-row gap-3' style={{marginBottom: 5}}>
-              <Text className='font-bold text-lg' style={{color: theme.text}}>Duration:</Text>
-              <Text className="text-lg" style={{color: theme.text}}>{project.duration}</Text>
-            </View>
-            <View className='flex-row gap-3' style={{marginBottom: 5}}>
-              <Text className='font-bold text-lg' style={{color: theme.text}}>Status:</Text>
-              <Text className="text-lg" style={{color: theme.text}}>{project.status}</Text>
-            </View>
+            
+            {[
+              { label: 'Owner', value: project.userId.username },
+              { label: 'Created', value: moment(project.createdAt).fromNow() },
+              { label: 'Category', value: project.category },
+              { label: 'Problem', value: project.problem },
+              { label: 'Duration', value: project.duration },
+              { label: 'Status', value: project.status },
+            ].map((item, i) => (
+              <View key={i} className='flex-row gap-3 mb-2'>
+                <Text className='font-bold text-lg' style={{ color: theme.text }}>{item.label}:</Text>
+                <Text className="text-lg" style={{ color: theme.text }}>{item.value || '—'}</Text>
+              </View>
+            ))}
           </View>
 
           <View style={{paddingTop: 20}}>
