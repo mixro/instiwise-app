@@ -1,32 +1,60 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList } from 'react-native'
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/src/context/ThemeContext';
-import { Link } from 'expo-router';
-import { projects } from '@/src/static/dummyData';
+import { Link, useFocusEffect } from 'expo-router';
 import ProjectCard from '@/src/components/ui/ProjectCard';
 import { Ionicons } from '@expo/vector-icons';
 import ProfileBar from '@/src/components/navigation/profilebar';
 import { useAuth } from '@/src/hooks/useAuth';
+import { useGetUserProjectsQuery } from '@/src/services/projectsApi';
+import { ActivityIndicator } from 'react-native';
+import { RefreshControl } from 'react-native-gesture-handler';
 
 export default function Profile() {
   const { theme } = useTheme();
   const { user, refetchProfile } = useAuth();
+  const [refreshing, setRefreshing] = React.useState(false);
 
-  useEffect(() => {
-    refetchProfile();          
-  }, []);
+  const { data: userProjects = [], isLoading, isFetching, refetch, } = useGetUserProjectsQuery();
+
+  useFocusEffect(
+    useCallback(() => {
+      refetchProfile();
+    }, [refetchProfile, refetch])
+  );
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    refetch().finally(() => setRefreshing(false));
+  }, [refetch]);
+  
+  if (isLoading) {
+    return (
+      <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.background }}>
+        <ActivityIndicator size="large" color={theme.blue_text} />
+      </SafeAreaView>
+    );
+  }
+  
 
   return (
     <SafeAreaView edges={['top']} 
       style={{ backgroundColor: theme.background, minHeight: "100%" }} className='px-3'
     >
       <FlatList
-        data={projects.slice(0,4)}
+        data={userProjects}
         keyExtractor={(item) => item._id.toString()}
         renderItem={({ item }) => <ProjectCard project={item} />}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ margin: 0 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[theme.blue_text]}
+          />
+        }
         ListHeaderComponent={
           <>
             <View className='pt-3 px-1'>
@@ -91,7 +119,7 @@ export default function Profile() {
           <View className="flex-1 justify-center items-center p-4">
             <Ionicons name="alert-circle-outline" size={40} color={theme.text} />
             <Text className="text-center text-lg mt-2" style={{ color: theme.text }}>
-              No projects found matching your search.
+              You haven't created any projects yet.
             </Text>
           </View>
         }

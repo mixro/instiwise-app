@@ -417,7 +417,7 @@ export const news = [
   },
 ];
 
-export const projects: ProjectsItem[] = [
+export const projects = [
   {
     _id: 1,
     title: 'Virtual Reality Lab',

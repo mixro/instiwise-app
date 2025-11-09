@@ -21,6 +21,10 @@ export default function Projects() {
 
   const { data: projects = [], isLoading, isFetching, refetch } = useGetProjectsQuery();
 
+  const handleSearch = (text: string) => {
+    setSearchQuery(text.toLowerCase()); 
+  };
+
   useFocusEffect(
     useCallback(() => {
       refetch();
@@ -94,7 +98,7 @@ export default function Projects() {
                 <SearchBar
                   placeholder='Search projects'
                   value={searchQuery}
-                  onChangeText={setSearchQuery}
+                  onChangeText={handleSearch}
                 />
               </View>
               <TouchableOpacity onPress={() => setSortMenuVisible(prev => !prev)}>

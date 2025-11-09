@@ -7,7 +7,7 @@ import { RootState } from '@/store/index';
 export const projectsApi = createApi({
   reducerPath: 'projectsApi',
   baseQuery:  baseQueryWithReauth,
-  tagTypes: ['Projects'],
+  tagTypes: ['Projects', 'UserProjects'],
   endpoints: (builder) => ({
     // All projects
     getProjects: builder.query<ProjectsItem[], void>({
@@ -43,6 +43,8 @@ export const projectsApi = createApi({
       invalidatesTags: (result, error, projectId) => [
         { type: 'Projects', id: projectId },
         { type: 'Projects', id: 'LIST' },
+        { type: 'UserProjects', id: projectId },   
+        { type: 'UserProjects', id: 'LIST' },
       ],
       async onQueryStarted(projectId, { dispatch, getState, queryFulfilled }) {
         const state = getState() as RootState;
@@ -69,11 +71,24 @@ export const projectsApi = createApi({
         }
       },
     }),
+
+    getUserProjects: builder.query<ProjectsItem[], void>({
+        query: () => '/projects/my/projects', 
+        transformResponse: (res: { data: ProjectsItem[] }) => res.data,
+        providesTags: (result) =>
+            result
+            ? [
+                ...result.map(({ _id }) => ({ type: 'UserProjects' as const, id: _id })),
+                { type: 'UserProjects', id: 'LIST' },
+                ]
+            : [{ type: 'UserProjects', id: 'LIST' }],
+    }),
   }),
 });
 
 export const {
   useGetProjectsQuery,
   useGetProjectByIdQuery,
+  useGetUserProjectsQuery,
   useLikeProjectMutation,
 } = projectsApi;
