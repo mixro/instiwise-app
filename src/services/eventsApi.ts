@@ -6,7 +6,7 @@ import { baseQueryWithReauth } from './authApi';
 export const eventsApi = createApi({
   reducerPath: 'eventsApi',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['Events'],
+  tagTypes: ['Events', 'UpcomingEvents'],
   endpoints: (builder) => ({
     getEvents: builder.query<EventItem[], void>({
       query: () => '/events',
@@ -20,55 +20,68 @@ export const eventsApi = createApi({
           : [{ type: 'Events', id: 'LIST' }],
     }),
 
+    getUpcomingEvents: builder.query<EventItem[], void>({
+      query: () => '/events/upcoming',
+      transformResponse: (res: { data: EventItem[] }) => res.data,
+      providesTags: ['UpcomingEvents'],
+    }),
+
     // NEW: Toggle favorite
     toggleFavorite: builder.mutation<{ isFavorited: boolean; favoriteCount: number }, string>({
-        query: (eventId) => ({
-            url: `/events/${eventId}/favorite`,
-            method: 'PATCH',
-        }),
-        
-        async onQueryStarted(eventId, { dispatch, getState, queryFulfilled }) {
-            const state = getState() as RootState;
-            const userId = state.auth.currentUser?._id;
-            if (!userId) return;
+      query: (eventId) => ({
+        url: `/events/${eventId}/favorite`,
+        method: 'PATCH',
+      }),
+      async onQueryStarted(eventId, { dispatch, getState, queryFulfilled }) {
+        const state = getState() as RootState;
+        const userId = state.auth.currentUser?._id;
+        if (!userId) return;
 
-            // Get current event from cache
-            const cachedEvents = state.eventsApi.queries['getEvents(undefined)']?.data as EventItem[] | undefined;
-            const event = cachedEvents?.find(e => e._id === eventId);
-            if (!event) return;
-
-            const isFavorited = event.favorites.includes(userId);
-            const newFavoriteState = !isFavorited;
-            const newCount = isFavorited ? event.favorites.length - 1 : event.favorites.length + 1;
-
-            // Optimistic update
-            const patchResult = dispatch(
-            eventsApi.util.updateQueryData('getEvents', undefined, (draft) => {
-                const draftEvent = draft.find(e => e._id === eventId);
-                if (draftEvent) {
-                if (newFavoriteState) {
-                    draftEvent.favorites.push(userId);
-                } else {
-                    draftEvent.favorites = draftEvent.favorites.filter(id => id !== userId);
-                }
-                }
-            })
-            );
-
-            try {
-            await queryFulfilled;
-            // Success: cache is already correct
-            } catch {
-            patchResult.undo();
-            // Optional: show error toast
+        // 1. Update Home (upcoming)
+        const patchUpcoming = dispatch(
+          eventsApi.util.updateQueryData('getUpcomingEvents', undefined, (draft) => {
+            const event = draft.find(e => e._id === eventId);
+            if (event) {
+              const wasFavorited = event.favorites.includes(userId);
+              if (wasFavorited) {
+                event.favorites = event.favorites.filter(id => id !== userId);
+              } else {
+                event.favorites.push(userId);
+              }
             }
-        },
-        // NO invalidatesTags → no refetch
+          })
+        );
+
+        // 2. Update Calendar (all events)
+        const patchAll = dispatch(
+          eventsApi.util.updateQueryData('getEvents', undefined, (draft) => {
+            const event = draft.find(e => e._id === eventId);
+            if (event) {
+              const wasFavorited = event.favorites.includes(userId);
+              if (wasFavorited) {
+                event.favorites = event.favorites.filter(id => id !== userId);
+              } else {
+                event.favorites.push(userId);
+              }
+            }
+          })
+        );
+
+        try {
+          await queryFulfilled;
+        } catch {
+          patchUpcoming.undo();
+          patchAll.undo();
+        }
+      },
+      // Optional: invalidate to sync with server
+      invalidatesTags: ['UpcomingEvents', 'Events'],
     }),
   }),
 });
 
 export const {
   useGetEventsQuery,
-  useToggleFavoriteMutation, // ← NEW
+  useToggleFavoriteMutation, 
+  useGetUpcomingEventsQuery,
 } = eventsApi;

@@ -7,17 +7,17 @@ import { useToggleFavoriteMutation } from '@/src/services/eventsApi';
 import * as Haptics from 'expo-haptics';
 import { useAppSelector } from '@/store/hooks';
 
-export default function EventCard({ eventItem }: { eventItem: EventItem }) {
+export default function EventCard({ eventItem, onFavorite, isFavorited: externalIsFavorited, }: { eventItem: EventItem; onFavorite?: () => void; isFavorited?: boolean;}) {
     const { theme } = useTheme();
     const [toggleFavorite, { isLoading }] = useToggleFavoriteMutation();
     const userId = useAppSelector((state) => state.auth.currentUser?._id);
     
-    const isFavorited = userId ? (eventItem.favorites ?? []).includes(userId) : false;
-    //const favoriteCount = (eventItem.favorites ?? []).length;
-    
-    const handleFavorite = () => {
-      Haptics.selectionAsync();
-      if (userId) {
+    const isFavorited = externalIsFavorited ?? (userId ? (eventItem.favorites ?? []).includes(userId) : false);
+
+    const handlePress = () => {
+      if (onFavorite) {
+        onFavorite();
+      } else if (userId) {
         toggleFavorite(eventItem._id);
       }
     };
@@ -31,7 +31,7 @@ export default function EventCard({ eventItem }: { eventItem: EventItem }) {
             <Text style={{ color: theme.text, fontSize: 14 }}>
               {eventItem.date}
             </Text>
-            <TouchableOpacity onPress={handleFavorite} disabled={isLoading}>
+            <TouchableOpacity onPress={handlePress} disabled={isLoading}>
               {isFavorited ? (
                 <MaterialIcons name="star" size={27} color="#f39e00ff" />
               ) : (

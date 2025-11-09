@@ -7,9 +7,25 @@ import { useTheme } from '@/src/context/ThemeContext';
 import { LinearGradient } from "expo-linear-gradient";
 import HomeStats from '@/src/components/ui/HomeStats';
 import { Link } from 'expo-router';
+import { useGetUpcomingEventsQuery, useToggleFavoriteMutation } from '@/src/services/eventsApi';
+import { ActivityIndicator } from 'react-native';
+import { useAppSelector } from '@/store/hooks';
+import * as Haptics from 'expo-haptics';
 
 export default function Index() {
   const { theme } = useTheme();  
+  const userId = useAppSelector(state => state.auth.currentUser?._id);
+
+  const { data: upcomingEvents = [], isLoading, isFetching,} = useGetUpcomingEventsQuery();
+
+  const [toggleFavorite] = useToggleFavoriteMutation();
+
+  const handleFavorite = (eventId: string) => {
+    Haptics.selectionAsync();
+    if (userId) {
+      toggleFavorite(eventId);
+    }
+  };
 
   return (
     <SafeAreaView edges={['top']} style={{ backgroundColor: theme.background, minHeight: "100%" }} className='px-4'>
@@ -47,13 +63,30 @@ export default function Index() {
             </LinearGradient>
 
             <View>
-                <Text className='mt-10 mb-6 text-2xl font-semibold uppercase' style={{ color: theme.text }}>Our Calendar</Text>
+                <Text className='mt-10 mb-6 text-2xl font-semibold' style={{ color: theme.text }}>
+                    UPCOMING EVENTS
+                </Text>
 
-                {events.slice(0, 4).map((event) => (
-                    <View key={event._id}>
-                        <EventCard eventItem={event} />
-                    </View>
-                ))}
+                {isLoading ? (
+                    <ActivityIndicator size="small" color={theme.blue_text} />
+                ) : upcomingEvents.length > 0 ? (
+                    upcomingEvents.map((event) => {
+                    const isFavorited = userId ? (event.favorites ?? []).includes(userId) : false;
+                    return (
+                        <View key={event._id} className="mb-4">
+                        <EventCard
+                            eventItem={event}
+                            onFavorite={() => handleFavorite(event._id)}
+                            isFavorited={isFavorited}
+                        />
+                        </View>
+                    );
+                    })
+                ) : (
+                    <Text style={{ color: theme.text, textAlign: 'center', marginVertical: 20 }}>
+                    No upcoming events.
+                    </Text>
+                )}
 
                 <View className='mb-2'>
                     <Link href={'/(tabs)/calendar'} asChild>

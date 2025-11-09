@@ -52,7 +52,7 @@ export const homeStatsData: { title: string; value: string; icon: React.Componen
   },
 ];
 
-export const events: EventItem[] = [
+export const events = [
   // October 2025
   {
     _id: 1,
