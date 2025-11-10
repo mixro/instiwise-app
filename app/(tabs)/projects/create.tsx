@@ -1,4 +1,4 @@
-import { View, Text, KeyboardAvoidingView, Platform, Dimensions, StyleSheet, ScrollView, TextInput, TouchableOpacity } from 'react-native'
+import { View, Text, KeyboardAvoidingView, Platform, Dimensions, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, ActivityIndicator, Image } from 'react-native'
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useTheme } from '@/src/context/ThemeContext';
@@ -6,10 +6,17 @@ import Navbar from '@/src/components/navigation/navbar';
 import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
 import ArrayInput from '@/src/components/ui/ArrayInput';
+import { ImageAsset, useImageUpload } from '@/src/hooks/useImageUpload';
+import { useCreateProjectMutation } from '@/src/services/projectsApi';
 const { height } = Dimensions.get('window');
 
 export default function create() {
   const { theme } = useTheme();  
+  const [createProject, { isLoading: submitting }] = useCreateProjectMutation();
+  const { pickImage, uploadImage, uploading, progress } = useImageUpload();
+
+  const [selectedImage, setSelectedImage] = useState<ImageAsset | null>(null);
+
   const [inputs, setInputs] = useState({
       title: '',
       desc: '',
@@ -36,15 +43,11 @@ export default function create() {
   });
 
   const handleChange = (key: string, value: string) => {
-    setInputs((prev) => ({
-      ...prev, [key]: value
-    }));
+    setInputs((prev) => ({ ...prev, [key]: value }));
   };
 
   const updateArrayValue = (key: string, value: string) => {
-    setArrayValues((prev) => ({
-      ...prev, [key]: value
-    }));
+    setArrayValues((prev) => ({ ...prev, [key]: value }));
   };
 
   const updateArray = (key: string, newArray: React.SetStateAction<string[]>) => {
@@ -52,6 +55,55 @@ export default function create() {
       ...prev,
       [key]: typeof newArray === 'function' ? newArray(prev[key as keyof typeof prev]) : newArray
     }));
+  };
+
+  const handleSelectImage = async () => {
+    const asset = await pickImage();
+    if (asset) {
+      setSelectedImage(asset);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!inputs.title || !inputs.desc || !selectedImage) {
+      Alert.alert('Error', 'Title, description, and image are required');
+      return;
+    }
+
+    // Step 1: Upload image
+    const uploadResult = await uploadImage(selectedImage!);
+    if (!uploadResult) {
+      Alert.alert('Upload Failed', 'Could not upload image');
+      return;
+    }
+
+    // Step 2: Create project
+    try {
+      await createProject({
+        title: inputs.title,
+        description: inputs.desc,
+        img: uploadResult.url,
+        category: inputs.category,
+        problem: inputs.problem,
+        duration: inputs.duration,
+        status: inputs.status || 'in progress',
+        goals: arrays.goals,
+        scope: arrays.scope,
+        budget: arrays.budget,
+        resources: arrays.resources,
+        challenges: arrays.challenges,
+        plan: arrays.plan,
+      }).unwrap();
+
+      Alert.alert('Success', 'Project created successfully!', [{ text: 'OK' }]);
+
+      // Reset
+      setInputs({ title: '', desc: '', category: '', problem: '', duration: '', status: '' });
+      setSelectedImage(null);
+      setArrays({ goals: [], scope: [], budget: [], resources: [], challenges: [], plan: [] });
+    } catch (error: any) {
+      Alert.alert('Error', error.data?.message || 'Failed to create project');
+    }
   };
 
   return (
@@ -64,7 +116,9 @@ export default function create() {
           showsVerticalScrollIndicator={false}
         >
           <Navbar title='CREATE NEW PROJECT' />
+
           <View className='pb-7'>
+            {/* Title */}
             <View>
               <View className='pt-6'>
                 <Text className='text-lg mb-3 font-medium' style={{color: theme.text}}>Title</Text>
@@ -77,13 +131,64 @@ export default function create() {
                       placeholderTextColor="#494949ff"
                   />
               </View>
+
+              {/* Image Upload */}
               <View className='pt-6'>
                   <Text className='text-lg mb-3 font-medium' style={{color: theme.text}}>Profile picture</Text>
-                  <View className='flex-1 flex-row gap-4 items-center py-3 justify-center rounded-md' style={{backgroundColor: theme.blue_text}}>
-                      <Text className='font-bold text-white'>UPLOAD IMAGE</Text>
-                      <Ionicons name="image" size={24} color="white" />
-                  </View>
+                  
+                  <TouchableOpacity
+                    onPress={handleSelectImage}
+                    disabled={uploading}
+                    style={{
+                      backgroundColor: theme.blue_text,
+                      padding: 12,
+                      borderRadius: 8,
+                      flexDirection: 'row',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}
+                  >
+                    {uploading ? (
+                      <ActivityIndicator color="white" />
+                    ) : (
+                      <>
+                        <Text className='font-bold text-white'>SELECT IMAGE</Text>
+                        <Ionicons name="image" size={24} color="white" style={{ marginLeft: 8 }} />
+                      </>
+                    )}
+                  </TouchableOpacity>
+
+                  {/* Local Preview */}
+                  {selectedImage && !uploading && (
+                    <View className="mt-4">
+                      <Text className="text-sm mb-2" style={{ color: theme.text }}>Preview:</Text>
+                      <Image
+                        source={{ uri: selectedImage.uri }}
+                        style={{ width: '100%', height: 200, borderRadius: 8 }}
+                        resizeMode="cover"
+                      />
+                    </View>
+                  )}
+
+                  {/* Upload Progress */}
+                  {uploading && (
+                    <View className="mt-4">
+                      <Text className="text-sm mb-2" style={{ color: theme.text }}>Uploading image...</Text>
+                      <View style={{ height: 6, backgroundColor: '#ddd', borderRadius: 3, overflow: 'hidden' }}>
+                        <View
+                          style={{
+                            height: '100%',
+                            width: `${progress}%`,
+                            backgroundColor: theme.green_text,
+                          }}
+                        />
+                      </View>
+                      <Text className="text-xs mt-1" style={{ color: theme.text }}>{progress}%</Text>
+                    </View>
+                  )}
               </View>
+
+              {/* Description */}
               <View className='pt-6'>
                   <Text className='text-lg mb-3 font-medium' style={{color: theme.text}}>Description</Text>
                   <TextInput
@@ -98,6 +203,8 @@ export default function create() {
                       textAlignVertical="top"
                   />
               </View>
+
+              {/* Category */}
               <View className='pt-6'>
                   <Text className='text-lg mb-3 font-medium' style={{color: theme.text}}>Category</Text>
                   <TextInput
@@ -109,96 +216,84 @@ export default function create() {
                       placeholderTextColor="#494949ff"
                   />
               </View>
+
+              {/* Problem */}
               <View className='pt-6'>
-                  <Text className='text-lg mb-3 font-medium' style={{color: theme.text}}>Problem solved</Text>
-                  <TextInput
-                      className='py-3 font-medium'
-                      value={inputs.problem}
-                      onChangeText={(text) => handleChange('problem', text)}
-                      style={styles.input}
-                      placeholder={"Project problem"}
-                      placeholderTextColor="#494949ff"
-                  />
+                <Text className='text-lg mb-3 font-medium' style={{ color: theme.text }}>Problem Solved</Text>
+                <TextInput
+                  className='py-3 font-medium'
+                  value={inputs.problem}
+                  onChangeText={(text) => handleChange('problem', text)}
+                  style={styles.input}
+                  placeholder="What problem does this solve?"
+                  placeholderTextColor="#494949"
+                />
               </View>
+  
+              {/* Duration */}
               <View className='pt-6'>
-                  <Text className='text-lg mb-3 font-medium' style={{color: theme.text}}>Duration</Text>
-                  <TextInput
-                      className='py-3 font-medium'
-                      value={inputs.duration}
-                      onChangeText={(text) => handleChange('duration', text)}
-                      style={styles.input}
-                      placeholder={"Project duration"}
-                      placeholderTextColor="#494949ff"
-                  />
+                <Text className='text-lg mb-3 font-medium' style={{ color: theme.text }}>Duration</Text>
+                <TextInput
+                  className='py-3 font-medium'
+                  value={inputs.duration}
+                  onChangeText={(text) => handleChange('duration', text)}
+                  style={styles.input}
+                  placeholder="e.g., 6 months"
+                  placeholderTextColor="#494949"
+                />
               </View>
+  
+              {/* Status */}
               <View className='pt-6'>
-                  <Text className='text-lg mb-3 font-medium' style={{color: theme.text}}>Status</Text>
-                  <View style={styles.select}>
-                    <Picker
-                      selectedValue={inputs.status}
-                      onValueChange={(itemValue) => handleChange('status', itemValue)}
-                      style={[{borderRadius: 5}, styles.input]}
-                      className='font-medium'
-                    >
-                      <Picker.Item label="Select category" value="" />
-                      <Picker.Item label="Completed" value="completed" />
-                      <Picker.Item label="In Progress" value="in progress" />
-                      <Picker.Item label="On Hold" value="on hold" />
-                    </Picker>
-                  </View>
+                <Text className='text-lg mb-3 font-medium' style={{ color: theme.text }}>Status</Text>
+                <View style={styles.select}>
+                  <Picker
+                    selectedValue={inputs.status}
+                    onValueChange={(value) => handleChange('status', value)}
+                    style={{ borderRadius: 5 }}
+                  >
+                    <Picker.Item label="Select status" value="" />
+                    <Picker.Item label="In Progress" value="in progress" />
+                    <Picker.Item label="Completed" value="completed" />
+                    <Picker.Item label="On Hold" value="on hold" />
+                  </Picker>
+                </View>
               </View>
             </View>
             
+            {/* Arrays */}
             <View className='py-3'>
-              <ArrayInput
-                label="Goals"
-                value={arrayValues.goals}
-                setValue={(value) => updateArrayValue('goals', value)}
-                array={arrays.goals}
-                setArray={(newArray) => updateArray('goals', newArray)} // Updated to pass newArray directly
-                theme={theme}
-              />
-              <ArrayInput
-                label="Plan"
-                value={arrayValues.plan}
-                setValue={(value) => updateArrayValue('plan', value)}
-                array={arrays.plan}
-                setArray={(newArray) => updateArray('plan', newArray)}
-                theme={theme}
-              />
-              <ArrayInput
-                label="Scope"
-                value={arrayValues.scope}
-                setValue={(value) => updateArrayValue('scope', value)}
-                array={arrays.scope}
-                setArray={(newArray) => updateArray('scope', newArray)}
-                theme={theme}
-              />
-              <ArrayInput
-                label="Budget"
-                value={arrayValues.budget}
-                setValue={(value) => updateArrayValue('budget', value)}
-                array={arrays.budget}
-                setArray={(newArray) => updateArray('budget', newArray)}
-                theme={theme}
-              />
-              <ArrayInput
-                label="Resources"
-                value={arrayValues.resources}
-                setValue={(value) => updateArrayValue('resources', value)}
-                array={arrays.resources}
-                setArray={(newArray) => updateArray('resources', newArray)}
-                theme={theme}
-              />
-              <ArrayInput
-                label="Challenges"
-                value={arrayValues.challenges}
-                setValue={(value) => updateArrayValue('challenges', value)}
-                array={arrays.challenges}
-                setArray={(newArray) => updateArray('challenges', newArray)}
-                theme={theme}
-              />
+              {(['goals', 'plan', 'scope', 'budget', 'resources', 'challenges'] as const).map((key) => (
+                <ArrayInput
+                  key={key}
+                  label={key.charAt(0).toUpperCase() + key.slice(1)}
+                  value={arrayValues[key]}
+                  setValue={(value) => updateArrayValue(key, value)}
+                  array={arrays[key]}
+                  setArray={(newArray) => updateArray(key, newArray)}
+                  theme={theme}
+                />
+              ))}
             </View>
+
+            {/* Submit */}
+            <TouchableOpacity
+              onPress={handleSubmit}
+              disabled={submitting || uploading}
+              style={{
+                backgroundColor: theme.green_text,
+                padding: 16,
+                borderRadius: 8,
+                marginTop: 24,
+                opacity: submitting || uploading ? 0.6 : 1,
+              }}
+            >
+              {submitting || uploading ? (
+                <ActivityIndicator color="white" />
+              ) : (
+                <Text className="text-white text-center font-bold text-lg">CREATE PROJECT</Text>
+              )}
+            </TouchableOpacity>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

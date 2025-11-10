@@ -57,10 +57,10 @@ export interface ProjectsItem {
   problem?: string;
   collaborators?: string[];
   duration?: string;
-  status?: 'in progress' | 'on hold' | 'completed';
+  status?: string;
   goals?: string[];
   resources?: string[];
-  budget?: number[];
+  budget?: string[];
   scope?: string[];
   plan?: string[];
   challenges?: string[];

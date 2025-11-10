@@ -1,98 +1,95 @@
-// src/hooks/useImageUpload.ts
 import * as ImagePicker from 'expo-image-picker';
-import { storage, ID } from '@/src/config/appwrite';
+import { storage, ID, BUCKET_ID, APPWRITE_URL_CONSTANTS } from '@/src/config/appwrite';
 import { useState } from 'react';
 
-interface UploadResult {
-  id: string;
-  url: string;
-  name: string;
+export interface ImageAsset {
+  uri: string;
+  fileName: string;
+  mimeType: string;
+  fileSize?: number;  // Optional, but include for accuracy
 }
 
-export const useImageUpload = (bucketId: string = 'images') => {
+export const useImageUpload = (bucketId: string = BUCKET_ID) => {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  const pickAndUpload = async (): Promise<UploadResult | null> => {
+  const pickImage = async (): Promise<ImageAsset | null> => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Permission to access photos is required!');
+      return null;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.8,
+    });
+
+    if (result.canceled || !result.assets?.[0]) return null;
+
+    const a = result.assets[0];
+    return {
+      uri: a.uri,
+      fileName: a.fileName ?? `image-${Date.now()}.jpg`,
+      mimeType: a.mimeType ?? 'image/jpeg',
+      fileSize: a.fileSize,  // Use actual size if available
+    };
+  };
+
+  const uploadImage = async (asset: ImageAsset): Promise<{ id: string; url: string } | null> => {
+    setUploading(true);
+    setProgress(0);
+
     try {
-      setUploading(true);
-      setProgress(0);
+        const fileObject = {
+        name: asset.fileName,
+        type: asset.mimeType,
+        size: asset.fileSize ?? 0,
+        uri: asset.uri,
+        };
 
-      // 1. Request permissions and pick image
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') {
-        alert('Sorry, we need camera roll permissions to make this work!');
-        return null;
-      }
+        console.log('Uploading file object:', fileObject);
 
-      // 2. Launch image picker
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 0.8,
-      });
+        setProgress(30);
+        const fileId = ID.unique();
 
-      if (result.canceled || !result.assets?.[0]) {
-        return null;
-      }
-
-      const asset = result.assets[0];
-      const uri = asset.uri;
-      const fileName = asset.fileName || `image-${Date.now()}.jpg`;
-      const mimeType = asset.mimeType || 'image/jpeg';
-
-      setProgress(20); // Start progress
-
-      // 3. Convert URI to blob
-      const response = await fetch(uri);
-      const blob = await response.blob();
-
-      setProgress(50); // Fetch complete
-
-      // 4. Upload to Appwrite
-      const file = await storage.createFile(
+        const file = await storage.createFile(
         bucketId,
-        ID.unique(),
-        blob as any
-      );
+        fileId,
+        fileObject,
+        ['read("any")'], // Public read
+        (progressEvent: any) => { 
+            if (progressEvent.sizeTotal > 0) { 
+                const pct = Math.round((progressEvent.sizeUploaded * 100) / progressEvent.sizeTotal);
+                setProgress(30 + pct * 0.7);
+            } else if (progressEvent.total > 0) { // Fallback to 'total' if available in a nested object
+                const pct = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                setProgress(30 + pct * 0.7);
+            }
+        }
+        );
 
-      setProgress(90); // Upload complete
+        setProgress(80);
 
-      // 5. Get public URL
-      const fileView = storage.getFileView(bucketId, file.$id);
-      const fileUrl = fileView.toString();
+        // public image url        
+        const url = `${APPWRITE_URL_CONSTANTS.endpoint}/storage/buckets/${bucketId}/files/${fileId}/view?project=${APPWRITE_URL_CONSTANTS.projectId}`;
 
-      setProgress(100);
+        console.log("download", url)
 
-      return {
-        id: file.$id,
-        url: fileUrl,
-        name: fileName,
-      };
-    } catch (error: any) {
-      console.error('Upload failed:', error.message);
-      throw new Error(error.message || 'Upload failed');
+        setProgress(100);
+
+        console.log('Upload success:', { id: file.$id, url }); // Now logs real URL
+        return { id: file.$id, url };
+    } catch (err: any) {
+        console.error('Upload error:', err);
+        alert(`Upload failed: ${err.message ?? 'Unknown error'}`);
+        return null;
     } finally {
-      setUploading(false);
-      setProgress(0);
+        setUploading(false);
+        setProgress(0);
     }
   };
 
-  const deleteFile = async (fileId: string): Promise<boolean> => {
-    try {
-      await storage.deleteFile(bucketId, fileId);
-      return true;
-    } catch (error: any) {
-      console.error('Delete failed:', error.message);
-      return false;
-    }
-  };
-
-  return {
-    pickAndUpload,
-    deleteFile,
-    uploading,
-    progress,
-  };
+  return { pickImage, uploadImage, uploading, progress };
 };

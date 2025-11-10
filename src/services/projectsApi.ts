@@ -9,7 +9,15 @@ export const projectsApi = createApi({
   baseQuery:  baseQueryWithReauth,
   tagTypes: ['Projects', 'UserProjects'],
   endpoints: (builder) => ({
-    // All projects
+    createProject: builder.mutation<ProjectsItem, Partial<ProjectsItem>>({
+        query: (data) => ({
+            url: '/projects',
+            method: 'POST',
+            body: data,
+        }),
+        invalidatesTags: ['Projects', 'UserProjects'],
+    }),
+
     getProjects: builder.query<ProjectsItem[], void>({
       query: () => '/projects',
       transformResponse: (res: { data: ProjectsItem[] }) => res.data,
@@ -91,4 +99,5 @@ export const {
   useGetProjectByIdQuery,
   useGetUserProjectsQuery,
   useLikeProjectMutation,
+  useCreateProjectMutation,
 } = projectsApi;

@@ -3,6 +3,7 @@ import React from 'react';
 import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { Ionicons, FontAwesome6 } from '@expo/vector-icons';
 import { StyleSheet } from 'react-native';
+import { useTheme } from '@/src/context/ThemeContext';
 
 const ArrayInput = ({ label, value, setValue, array, setArray, theme }: {
   label: string;
@@ -12,6 +13,7 @@ const ArrayInput = ({ label, value, setValue, array, setArray, theme }: {
   setArray: React.Dispatch<React.SetStateAction<string[]>>; // Updated to match React's setState
   theme: any;
 }) => {
+
   const handleAddItem = () => {
     if (value.trim() !== '') {
       setArray((prev) => [...prev, value]); // Use prev state to ensure immutability
@@ -51,10 +53,10 @@ const ArrayInput = ({ label, value, setValue, array, setArray, theme }: {
           <Text className='text-md mb-2 font-medium' style={{ color: theme.blue_text }}>Added {label}{label != 'Goals' && 's'}:</Text>
           <View className='flex-row flex-wrap gap-2'>
             {array.map((item, index) => (
-              <View key={index} className='flex-row items-center bg-gray-200 dark:bg-gray-700 p-2 rounded-md'>
-                <Text className='text-sm text-gray-800 dark:text-gray-200 mr-2'>{item}</Text>
-                <TouchableOpacity onPress={() => handleRemoveItem(index)}>
-                  <Ionicons name="close" size={16} color="#D32F2F" />
+              <View key={index} className='flex-row items-center rounded-full' style={{backgroundColor: theme.green_accent, padding: 5, paddingLeft: 10}}>
+                <Text className='text-lg mr-2'>{item}</Text>
+                <TouchableOpacity onPress={() => handleRemoveItem(index)} style={{backgroundColor: theme.red_button, borderRadius: 50, padding: 2}}>
+                  <Ionicons name="close" size={20} color="white" />
                 </TouchableOpacity>
               </View>
             ))}
