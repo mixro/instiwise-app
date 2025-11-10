@@ -10,6 +10,8 @@ import { useStorage } from '@/utils/useStorage';
 import { useUpdateUserMutation } from '@/src/services/userApi';
 import { setCredentials } from '@/store/slices/authSlice';
 import { router } from 'expo-router';
+import { Image } from 'react-native';
+import { ImageAsset, useImageUpload } from '@/src/hooks/useImageUpload';
 const { height } = Dimensions.get('window');
 
 export default function personalDetails() {
@@ -24,6 +26,7 @@ export default function personalDetails() {
         email: '',
         phone: '',
         bio: '',
+        img: '',
     });
 
     const [original, setOriginal] = useState(form);
@@ -35,11 +38,23 @@ export default function personalDetails() {
                 email: authUser.email ?? '',
                 phone: authUser.phone ?? '',
                 bio: authUser.bio ?? '',
+                img: authUser.img ?? '',
             };
             setForm(data);
             setOriginal(data);
         }
     }, [authUser]);
+
+    // Image upload (appwrite)
+    const { pickImage, uploadImage, uploading, progress } = useImageUpload();
+    const [selectedImage, setSelectedImage] = useState<ImageAsset | null>(null);
+
+    const handleSelectImage = async () => {
+        const asset = await pickImage();
+        if (asset) {
+            setSelectedImage(asset);
+        }
+    };
 
     // Validation (only for changed fields)
     const isValidUsername = (s: string) => /^[A-Za-z][A-Za-z0-9_]{2,15}$/.test(s);
@@ -73,7 +88,7 @@ export default function personalDetails() {
         if (!authUser?._id) return;
 
         const updates = getChangedFields();
-        if (Object.keys(updates).length === 0) {
+        if (Object.keys(updates).length === 0 && !selectedImage) {
             Alert.alert('No changes', 'You haven\'t modified anything.');
             return;
         }
@@ -83,12 +98,28 @@ export default function personalDetails() {
             return;
         }
 
+        let imgUrl = form.img;
+
+        // Upload image if selected
+        if (selectedImage) {
+            console.log("started")
+            const uploadResult = await uploadImage(selectedImage);
+            if (!uploadResult) {
+                Alert.alert('Upload Failed', 'Could not upload profile image');
+                return;
+            }
+            imgUrl = uploadResult.url;
+            updates.img = imgUrl;
+            console.log(imgUrl);
+        }
+
         try {
             const result = await updateUser({ id: authUser._id, updates }).unwrap();
 
             const updatedUser = {
                 ...authUser,
                 ...result.data,
+                img: imgUrl,
                 accessToken: result.data.accessToken ?? authUser.accessToken,
                 refreshToken: result.data.refreshToken ?? authUser.refreshToken,
             };
@@ -97,7 +128,7 @@ export default function personalDetails() {
             await saveAuth(updatedUser);
             refetchProfile?.();
 
-            Alert.alert('Success', 'Your details have been updated.');
+            Alert.alert('Success', 'Your profile have been updated.');
             router.back();
         } catch (err: any) {
             Alert.alert('Error', err?.data?.message ?? 'Failed to update profile.');
@@ -116,6 +147,50 @@ export default function personalDetails() {
                 <View className='pb-6'>
                     <Navbar title='Update your details' />
 
+                    <View className='flex-column items-center justify-center mt-3'>
+                        <View style={{borderColor: theme.text}} className="relative rounded-full p-0.5 border border-2 flex-row items-center justify-center">
+                            <Image
+                                source={{ 
+                                    uri: selectedImage?.uri || form.img || 'https://www.pngkey.com/png/full/157-1579943_no-profile-picture-round.png',
+                                }}
+                                style={styles.updateProfileImg}
+                            />
+                            <TouchableOpacity 
+                                onPress={handleSelectImage}
+                                disabled={uploading}
+                                style={styles.imageIcon}
+                            >
+                                <View className='rounded-full flex-row items-center justify-center' 
+                                    style={[{backgroundColor: theme.blue_text, padding: 2}]}
+                                >
+                                    <Ionicons name="add-circle-sharp" size={38} color="white" />
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+
+                        {/* Upload Progress */}
+                        {uploading && (
+                            <View className="mt-4 w-[60%]">
+                                <Text className="text-sm mb-2" style={{ color: theme.text }}>
+                                    Uploading image...
+                                </Text>
+                                <View style={{ height: 6, backgroundColor: '#ddd', borderRadius: 3, overflow: 'hidden' }}>
+                                    <View
+                                    style={{
+                                        height: '100%',
+                                        width: `${progress}%`,
+                                        backgroundColor: theme.green_text,
+                                    }}
+                                    />
+                                </View>
+                                <Text className="text-xs mt-1" style={{ color: theme.text }}>
+                                    {progress}%
+                                </Text>
+                            </View>
+                        )}
+                    </View>
+
+                    {/* Username */}
                     <View className='pt-6'>
                         <Text className='text-lg mb-3 font-medium' style={{color: theme.text}}>Username</Text>
                         <TextInput
@@ -127,6 +202,8 @@ export default function personalDetails() {
                             placeholderTextColor="#494949ff"
                         />
                     </View>
+
+                    {/* Bio */}
                     <View className='pt-6'>
                         <Text className='text-lg mb-3 font-medium' style={{color: theme.text}}>Bio</Text>
                         <TextInput
@@ -141,6 +218,8 @@ export default function personalDetails() {
                             textAlignVertical="top"
                         />
                     </View>
+
+                    {/* Email */}
                     <View className='pt-6'>
                         <Text className='text-lg mb-3 font-medium' style={{color: theme.text}}>Email</Text>
                         <TextInput
@@ -152,6 +231,8 @@ export default function personalDetails() {
                             placeholderTextColor="#494949ff"
                         />
                     </View>
+
+                    {/* Phone */}
                     <View className='pt-6'>
                         <Text className='text-lg mb-3 font-medium' style={{color: theme.text}}>Phone</Text>
                         <TextInput
@@ -175,23 +256,18 @@ export default function personalDetails() {
                         </Text>
                     )}
 
-                    <View className='pt-6'>
-                        <Text className='text-lg mb-3 font-medium' style={{color: theme.text}}>Profile picture</Text>
-                        <View className='flex-1 flex-row gap-4 items-center py-9 justify-center rounded-md' style={{backgroundColor: "#919191ff"}}>
-                            <Text className='font-bold text-white'>UPLOAD IMAGE</Text>
-                            <Ionicons name="image" size={24} color="white" />
-                        </View>
-                    </View>
-
                     <View className='pt-10'>
                         <TouchableOpacity 
-                            style={{backgroundColor: theme.blue_text
+                            style={{backgroundColor: 
+                                Object.keys(getChangedFields()).length > 0 || selectedImage
+                                ? theme.blue_text
+                                : theme.gray_text,
                             }} 
                             className='flex-row items-center justify-center p-4 rounded-md'
                             onPress={handleSubmit}
-                            disabled={isLoading || Object.keys(getChangedFields()).length === 0}
+                            disabled={isLoading || uploading}
                         >
-                            {isLoading ? (
+                            {isLoading || uploading ? (
                                 <ActivityIndicator color="white" />
                             ) : (
                                 <Text className='text-xl text-white font-semibold'>UPDATE</Text>
@@ -229,4 +305,14 @@ const styles = StyleSheet.create({
     padding: 10,
     minHeight: 120,
   },
+  updateProfileImg: {
+    width: 130,
+    height: 130,
+    borderRadius: 100,
+  },
+  imageIcon: {
+    right: -4,
+    bottom: 6,
+    position: "absolute"
+  }
 })

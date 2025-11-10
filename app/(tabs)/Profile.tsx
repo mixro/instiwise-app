@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList } from 'react-native'
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/src/context/ThemeContext';
 import { Link, useFocusEffect } from 'expo-router';
@@ -28,6 +28,14 @@ export default function Profile() {
     setRefreshing(true);
     refetch().finally(() => setRefreshing(false));
   }, [refetch]);
+
+  const sortedProjects = useMemo(() => {
+    return [...userProjects].sort((a, b) => {
+      const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return timeB - timeA; 
+    });
+  }, [userProjects]);
   
   if (isLoading) {
     return (
@@ -43,7 +51,7 @@ export default function Profile() {
       style={{ backgroundColor: theme.background, minHeight: "100%" }} className='px-3'
     >
       <FlatList
-        data={userProjects}
+        data={sortedProjects}
         keyExtractor={(item) => item._id.toString()}
         renderItem={({ item }) => <ProjectCard project={item} />}
         showsVerticalScrollIndicator={false}
@@ -60,13 +68,17 @@ export default function Profile() {
             <View className='pt-3 px-1'>
               <ProfileBar />
 
-              <View className='flex-row items-start gap-4 pt-4'>
-                <View style={{borderColor: theme.text}} className="rounded-full p-0.5 border border-2 flex-row items-center justify-center">
-                  <Image
-                    source={{ uri: user?.img || 'https://www.pngkey.com/png/full/157-1579943_no-profile-picture-round.png' }}
-                    style={styles.profileImg}
-                  />
-                </View>
+              <View className='flex-row items-start gap-5 pt-4'>
+                <Link href="/user/personalDetails" asChild>
+                  <TouchableOpacity activeOpacity={0.8}>
+                    <View style={{borderColor: theme.text}} className="rounded-full p-0.5 border border-2 flex-row items-center justify-center">
+                      <Image
+                        source={{ uri: user?.img || 'https://www.pngkey.com/png/full/157-1579943_no-profile-picture-round.png' }}
+                        style={styles.profileImg}
+                        />
+                    </View>
+                  </TouchableOpacity>
+                </Link>
                 <View className='flex-1'>
                   <Text className='font-bold mb-2' style={{color: theme.text, fontSize: 20}}>{user?.username}</Text>
                   <View className='flex-row items-center flex-1'>
