@@ -134,7 +134,7 @@ export default function create() {
 
               {/* Image Upload */}
               <View className='pt-6'>
-                  <Text className='text-lg mb-3 font-medium' style={{color: theme.text}}>Profile picture</Text>
+                  <Text className='text-lg mb-3 font-medium' style={{color: theme.text}}>Project image</Text>
                   
                   <TouchableOpacity
                     onPress={handleSelectImage}

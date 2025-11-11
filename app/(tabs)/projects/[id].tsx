@@ -1,20 +1,23 @@
-import { View, Text, ScrollView, Image, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native'
-import React from 'react'
-import { useFocusEffect, useLocalSearchParams } from 'expo-router';
-import { projects } from '@/src/static/dummyData';
+import { View, Text, ScrollView, Image, StyleSheet, ActivityIndicator, TouchableOpacity, Alert } from 'react-native'
+import React, { useState } from 'react'
+import { Link, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/src/context/ThemeContext';
 import ProjectDetails from '@/src/components/ui/ProjectDetails';
 import moment from 'moment';
 import * as Haptics from 'expo-haptics';
 import { useAppSelector } from '@/store/hooks';
-import { useGetProjectByIdQuery, useLikeProjectMutation } from '@/src/services/projectsApi';
-import { Ionicons } from '@expo/vector-icons';
+import { useDeleteProjectMutation, useGetProjectByIdQuery, useLikeProjectMutation } from '@/src/services/projectsApi';
+import { Fontisto, Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 
 export default function project() {
   const { theme } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const [sortMenuVisible, setSortMenuVisible] = useState(false);
   const userId = useAppSelector(state => state.auth.currentUser?._id);
+    const router = useRouter();
+    const [deleteProject, { isLoading: deleting }] = useDeleteProjectMutation();
 
   const { data: project, isLoading, isFetching, refetch } = useGetProjectByIdQuery(id, {
     skip: !id,
@@ -25,7 +28,6 @@ export default function project() {
   });
 
   const [likeProject, { isLoading: islikeLoading }] = useLikeProjectMutation();
-  
 
   useFocusEffect(
     React.useCallback(() => {
@@ -50,6 +52,31 @@ export default function project() {
     }
   };
 
+  const handleDelete = () => {
+    Alert.alert(
+      'Delete Project',
+      'Are you sure you want to delete this project? This action cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+            try {
+              await deleteProject(id).unwrap();
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+              router.back(); // Go back after delete
+            } catch (error) {
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+              Alert.alert('Error', 'Failed to delete project');
+            }
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <SafeAreaView edges={['top']} 
       style={{ backgroundColor: theme.background, minHeight: "100%" }} className='px-3'
@@ -58,19 +85,57 @@ export default function project() {
         showsVerticalScrollIndicator={false}
       >
         <View style={{paddingBottom: 0}}>
-          <Text className='text-2xl font-bold' style={{color: theme.text, marginTop: 25}}>
-            {project.title.toUpperCase()}
-          </Text>
+          <View className='relative flex-row justify-between mt-10'>
+            <View className='flex-1'>
+              <Text className='text-2xl font-bold' style={{color: theme.text}}>
+                {project.title.toUpperCase()}
+              </Text>
 
-          <View className='pt-4 flex-row gap-5'>
-            <Text className='px-3 text-sm text-white py-0.5 rounded-full capitalize'
-              style={{backgroundColor: project.status === "completed" ? "#2E7D32" : project.status === "on hold" ? "#F9A825" : "#1976D2"}}
-            >
-              {project.status}
-            </Text>
-            <Text className='border-left ' style={[{color: theme.text, paddingLeft: 15}, styles.category]}>
-              {project.category}
-            </Text>
+              <View className='pt-4 flex-row gap-5'>
+                <Text className='px-3 text-sm text-white py-0.5 rounded-full capitalize'
+                  style={{backgroundColor: project.status === "completed" ? "#2E7D32" : project.status === "on hold" ? "#F9A825" : "#1976D2"}}
+                >
+                  {project.status}
+                </Text>
+                <Text className='border-left ' style={[{color: theme.text, paddingLeft: 15}, styles.category]}>
+                  {project.category}
+                </Text>
+              </View>
+            </View>
+
+            {sortMenuVisible && 
+              <View className='absolute P-3 border dark:bg-gray-800 p-3 rounded-lg z-10' 
+                style={{right: 20, top: 0, backgroundColor: theme.border}}
+              >
+                <Link href={`/projects/update/${project._id}`} asChild>
+                  <TouchableOpacity className='p-2 px-4 rounded-md mb-4' 
+                    style={{ backgroundColor: theme.blue_text}}
+                    onPress={() => setSortMenuVisible(false)}
+                  >
+                    <Text className='font-bold text-white'>UPDATE PROJECT</Text>
+                  </TouchableOpacity>
+                </Link>            
+
+                <TouchableOpacity className='p-2 px-4 rounded-md' 
+                  style={{ backgroundColor: theme.red_button}}
+                  onPress={() => {
+                    setSortMenuVisible(false);
+                    handleDelete();
+                  }}
+                  disabled={deleting}
+                >
+                  <Text className='font-bold text-white'>{deleting ? 'Deleting...' : 'DELETE PROJECT'}</Text>
+                </TouchableOpacity>
+              </View>
+            }
+
+            {userId === project.userId._id && <View className='ml-2'>
+              <TouchableOpacity onPress={() => setSortMenuVisible(prev => !prev)}>
+                <View className='rounded-full p-2 px-1 mt-2' style={{backgroundColor: theme.menu_button}}>
+                  <Fontisto name="more-v-a" size={34} color={theme.text} />
+                </View>
+              </TouchableOpacity>
+            </View>}
           </View>
 
           <View className='flex-row items-center justify-between' style={{ paddingTop: 36 }}>

@@ -80,6 +80,7 @@ export default function TabLayout() {
             ),
           }}
         />
+
         <Tabs.Screen
           name="projects/create"
           options={{
@@ -87,6 +88,15 @@ export default function TabLayout() {
             headerShown: false,
           }}
         />
+
+        <Tabs.Screen
+          name="projects/update/[id]"
+          options={{
+            href: null,
+            headerShown: false,
+          }}
+        />
+
         <Tabs.Screen
           name="projects/[id]"
           options={{
@@ -94,6 +104,7 @@ export default function TabLayout() {
             headerShown: false,
           }}
         />
+
         <Tabs.Screen
           name="user/personalDetails"
           options={{

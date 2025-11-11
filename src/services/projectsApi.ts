@@ -31,15 +31,34 @@ export const projectsApi = createApi({
     }),
 
     getProjectById: builder.query<ProjectsItem | undefined, string>({
-      queryFn: (id: string, { getState }): { data: ProjectsItem | undefined } => {
+      queryFn: async (id: string, { getState }, _extraOptions, baseQuery): Promise<{ data: ProjectsItem | undefined }> => {
         const state = getState() as RootState;
-        const projectsResult = projectsApi.endpoints.getProjects.select(undefined)(state);
-        const project = projectsResult.data?.find((p) => p._id === id);
-        return { data: project };
+
+        // 1. Try cache: getProjects
+        const allProjectsSel = projectsApi.endpoints.getProjects.select(undefined)(state);
+        const fromAll = allProjectsSel.data?.find(p => p._id === id);
+
+        // 2. Try cache: getUserProjects
+        const userProjectsSel = projectsApi.endpoints.getUserProjects.select(undefined)(state);
+        const fromUser = userProjectsSel.data?.find(p => p._id === id);
+
+        const cachedProject = fromAll ?? fromUser;
+
+        if (cachedProject) {
+          return { data: cachedProject };
+        }
+
+        // 3. Not in cache → fetch from network
+        const result = await baseQuery(`/projects/${id}`);
+
+        return { data: (result.data as { data: ProjectsItem }).data };
       },
+      
       providesTags: (result, error, id) => [
         { type: 'Projects', id },
         { type: 'Projects', id: 'LIST' },
+        { type: 'UserProjects', id },
+        { type: 'UserProjects', id: 'LIST' },
       ],
     }),
 
@@ -91,6 +110,38 @@ export const projectsApi = createApi({
                 ]
             : [{ type: 'UserProjects', id: 'LIST' }],
     }),
+
+    deleteProject: builder.mutation<void, string>({
+      query: (id) => ({
+        url: `/projects/${id}`,
+        method: 'DELETE',
+      }),
+
+      async onQueryStarted(id, { dispatch, queryFulfilled }) {
+        const patchAll = dispatch(
+          projectsApi.util.updateQueryData('getProjects', undefined, (draft) =>
+            draft.filter(p => p._id !== id)
+          )
+        );
+        const patchUser = dispatch(
+          projectsApi.util.updateQueryData('getUserProjects', undefined, (draft) =>
+            draft.filter(p => p._id !== id)
+          )
+        );
+
+        try {
+          await queryFulfilled;
+        } catch {
+          patchAll.undo();
+          patchUser.undo();
+        }
+      },
+
+      invalidatesTags: (r, e, id) => [
+        { type: 'Projects', id },
+        { type: 'UserProjects', id },
+      ],
+    }),
   }),
 });
 
@@ -100,4 +151,5 @@ export const {
   useGetUserProjectsQuery,
   useLikeProjectMutation,
   useCreateProjectMutation,
+  useDeleteProjectMutation
 } = projectsApi;
