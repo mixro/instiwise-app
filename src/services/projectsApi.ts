@@ -142,6 +142,51 @@ export const projectsApi = createApi({
         { type: 'UserProjects', id },
       ],
     }),
+
+    updateProject: builder.mutation<ProjectsItem, { id: string; updates: Partial<ProjectsItem> }>({
+      query: ({ id, updates }) => ({
+        url: `/projects/${id}`,
+        method: 'PUT',
+        body: updates,
+      }),
+
+      // Optimistic update
+      async onQueryStarted({ id, updates }, { dispatch, queryFulfilled }) {
+        const patchAll = dispatch(
+          projectsApi.util.updateQueryData('getProjects', undefined, (draft) =>
+            draft.map(p => (p._id === id ? { ...p, ...updates } : p))
+          )
+        );
+        const patchUser = dispatch(
+          projectsApi.util.updateQueryData('getUserProjects', undefined, (draft) =>
+            draft.map(p => (p._id === id ? { ...p, ...updates } : p))
+          )
+        );
+
+        try {
+          const { data } = await queryFulfilled;
+          // Replace with fresh data
+          dispatch(
+            projectsApi.util.updateQueryData('getProjects', undefined, (draft) =>
+              draft.map(p => (p._id === id ? data : p))
+            )
+          );
+          dispatch(
+            projectsApi.util.updateQueryData('getUserProjects', undefined, (draft) =>
+              draft.map(p => (p._id === id ? data : p))
+            )
+          );
+        } catch {
+          patchAll.undo();
+          patchUser.undo();
+        }
+      },
+
+      invalidatesTags: (result, error, { id }) => [
+        { type: 'Projects', id },
+        { type: 'UserProjects', id },
+      ],
+    }),
   }),
 });
 
@@ -151,5 +196,6 @@ export const {
   useGetUserProjectsQuery,
   useLikeProjectMutation,
   useCreateProjectMutation,
-  useDeleteProjectMutation
+  useDeleteProjectMutation,
+  useUpdateProjectMutation,
 } = projectsApi;
