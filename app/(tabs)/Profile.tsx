@@ -37,14 +37,6 @@ export default function Profile() {
     });
   }, [userProjects]);
   
-  if (isLoading) {
-    return (
-      <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.background }}>
-        <ActivityIndicator size="large" color={theme.blue_text} />
-      </SafeAreaView>
-    );
-  }
-  
 
   return (
     <SafeAreaView edges={['top']} 
@@ -128,12 +120,16 @@ export default function Profile() {
           </>
         }
         ListEmptyComponent={
-          <View className="flex-1 justify-center items-center p-4">
-            <Ionicons name="alert-circle-outline" size={40} color={theme.text} />
-            <Text className="text-center text-lg mt-2" style={{ color: theme.text }}>
-              You haven't created any projects yet.
-            </Text>
-          </View>
+          isLoading 
+          ? <View className='pt-10'>
+              <ActivityIndicator size="large" color={theme.green_text} />
+            </View>
+          : <View className="flex-1 justify-center items-center p-4">
+              <Ionicons name="alert-circle-outline" size={40} color={theme.text} />
+              <Text className="text-center text-lg mt-2" style={{ color: theme.text }}>
+                You haven't created any projects yet.
+              </Text>
+            </View>
         }
       />
     </SafeAreaView>

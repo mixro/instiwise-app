@@ -7,6 +7,7 @@ import { eventsApi } from '../src/services/eventsApi';
 import { projectsApi } from '../src/services/projectsApi';
 import authReducer from './slices/authSlice';
 import newsReducer from './slices/newsSlice';
+import projectReducer from './slices/projectSlice';
 
 export const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ export const store = configureStore({
 
     auth: authReducer,
     news: newsReducer,
+    projects: projectReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(

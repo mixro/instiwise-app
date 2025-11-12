@@ -244,12 +244,16 @@ const flatData: CalendarItem[] = useMemo(() => {
           />
         }
         ListEmptyComponent={
-          <View className="flex-1 justify-center items-center p-4 pt-20">
-            <Ionicons name="alert-circle-outline" size={40} color={theme.text} />
-            <Text className="text-center text-lg mt-2" style={{ color: theme.text }}>
-              No events found matching your search.
-            </Text>
-          </View>
+          isLoading 
+          ? <View style={{paddingTop: 70}}>
+              <ActivityIndicator size="large" color={theme.green_text} />
+            </View>
+          : <View className="flex-1 justify-center items-center p-4 pt-20">
+              <Ionicons name="alert-circle-outline" size={40} color={theme.text} />
+              <Text className="text-center text-lg mt-2" style={{ color: theme.text }}>
+                No events found matching your search.
+              </Text>
+            </View>
         }
         initialNumToRender={10}
         windowSize={5}

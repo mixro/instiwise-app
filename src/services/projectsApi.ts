@@ -2,6 +2,7 @@ import { createApi  } from '@reduxjs/toolkit/query/react';
 import { baseQueryWithReauth } from './authApi';
 import { ProjectsItem } from '../interfaces/interfaces';
 import { RootState } from '@/store/index';
+import { clearOptimisticLike, setLikePending, setOptimisticLike } from '@/store/slices/projectSlice';
 
 
 export const projectsApi = createApi({
@@ -67,38 +68,60 @@ export const projectsApi = createApi({
         url: `/projects/${projectId}/like`,
         method: 'PUT',
       }),
-      invalidatesTags: (result, error, projectId) => [
-        { type: 'Projects', id: projectId },
-        { type: 'Projects', id: 'LIST' },
-        { type: 'UserProjects', id: projectId },   
-        { type: 'UserProjects', id: 'LIST' },
-      ],
+
       async onQueryStarted(projectId, { dispatch, getState, queryFulfilled }) {
         const state = getState() as RootState;
         const userId = state.auth.currentUser?._id;
         if (!userId) return;
 
-        const patchResult = dispatch(
-          projectsApi.util.updateQueryData('getProjects', undefined, (draft) => {
-            const p = draft.find((x) => x._id === projectId);
-            if (p) {
-              if (p.likes.includes(userId)) {
-                p.likes = p.likes.filter((id) => id !== userId);
-              } else {
-                p.likes.push(userId);
-              }
-            }
-          })
+        // 1. Instant UI: pending + optimistic
+        dispatch(setLikePending({ id: projectId, pending: true }));
+        const currentLiked = state.projects.optimisticLikes[projectId] ?? (state.projects.likesPending[projectId] ? false : undefined);
+        const willBeLiked = !(currentLiked ?? false);
+        dispatch(setOptimisticLike({ id: projectId, liked: willBeLiked }));
+
+        // 2. Optimistic cache update (O(1) with splice)
+        const toggleLike = (draft: ProjectsItem[]) => {
+          const p = draft.find((x) => x._id === projectId);
+          if (!p) return;
+
+          const idx = p.likes.indexOf(userId);
+          if (idx !== -1) {
+            p.likes.splice(idx, 1); // ← Fast unlike
+          } else {
+            p.likes.push(userId); // ← Fast like
+          }
+        };
+
+        const patchAll = dispatch(
+          projectsApi.util.updateQueryData('getProjects', undefined, toggleLike)
+        );
+
+        const patchUser = dispatch(
+          projectsApi.util.updateQueryData('getUserProjects', undefined, toggleLike)
         );
 
         try {
           await queryFulfilled;
+          dispatch(clearOptimisticLike(projectId)); // Use real data
         } catch {
-          patchResult.undo();
+          // Rollback
+          patchAll.undo();
+          patchUser.undo();
+          dispatch(setOptimisticLike({ id: projectId, liked: !willBeLiked }));
+        } finally {
+          dispatch(setLikePending({ id: projectId, pending: false }));
         }
       },
-    }),
 
+      invalidatesTags: (result, error, projectId) => [
+        { type: 'Projects', id: projectId },
+        { type: 'Projects', id: 'LIST' },
+        { type: 'UserProjects', id: projectId },
+        { type: 'UserProjects', id: 'LIST' },
+      ],
+    }),
+    
     getUserProjects: builder.query<ProjectsItem[], void>({
         query: () => '/projects/my/projects', 
         transformResponse: (res: { data: ProjectsItem[] }) => res.data,

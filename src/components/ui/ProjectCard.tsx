@@ -12,16 +12,18 @@ import * as Haptics from 'expo-haptics';
 
 export default function ProjectCard({ project } : {project: ProjectsItem} ) {
     const { theme } = useTheme();
-    const [likeProject, { isLoading }] = useLikeProjectMutation();
+    const [likeProject, { isLoading: islikeLoading }] = useLikeProjectMutation();
     const userId = useAppSelector(state => state.auth.currentUser?._id);
+    const pending = useAppSelector(state => state.projects.likesPending[project._id]);
+    const optimisticLiked = useAppSelector(state => state.projects.optimisticLikes[project._id]);
 
-    const isLiked = userId ? (project.likes ?? []).includes(userId) : false;
+    const isLiked = optimisticLiked ?? (userId ? (project.likes ?? []).includes(userId) : false);
+    const disabled = pending || islikeLoading;
 
     const handleLike = () => {
+        if (!userId || pending || islikeLoading) return;
         Haptics.selectionAsync();
-        if (userId) {
-            likeProject(project._id);
-        }
+        likeProject(project._id);
     };
 
   return (
@@ -53,7 +55,7 @@ export default function ProjectCard({ project } : {project: ProjectsItem} ) {
                         </Text>
                     </View>
                 </View>
-                <TouchableOpacity onPress={handleLike} disabled={isLoading}>
+                <TouchableOpacity activeOpacity={0.85} onPress={handleLike} disabled={disabled}>
                     {isLiked 
                         ? <Ionicons name="heart-sharp" size={40} color="red" />
                         : <Ionicons name="heart-outline" size={40} color="red" />

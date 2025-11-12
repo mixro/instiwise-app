@@ -12,6 +12,7 @@ import { useFocusEffect } from '@react-navigation/native';
 export default function News() {
   const { theme } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
+  const [isManualRefresh, setIsManualRefresh] = useState(false);
   const { data: news = [], isLoading, isFetching, error, refetch } = useGetNewsQuery();
 
   const handleSearch = (text: string) => {
@@ -33,9 +34,11 @@ export default function News() {
     );
   }, [news, searchQuery]);
 
-  const onRefresh = () => {
-    refetch();
-  };
+  // Pull-to-refresh
+  const onRefresh = useCallback(() => {
+    setIsManualRefresh(true);
+    refetch().finally(() => setIsManualRefresh(false));
+  }, [refetch]);
 
   // Auto-refetch when screen comes into focus
   useFocusEffect(
@@ -43,22 +46,6 @@ export default function News() {
       refetch(); 
     }, [refetch])
   );
-
-  if (isLoading) {
-    return (
-      <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.background }}>
-        <ActivityIndicator size="large" color={theme.blue_text} />
-      </SafeAreaView>
-    );
-  }
-
-  if (error) {
-    return (
-      <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.background }}>
-        <Text style={{ color: theme.text }}>Failed to load news.</Text>
-      </SafeAreaView>
-    );
-  }
 
   return (
     <SafeAreaView edges={['top']} style={{ backgroundColor: theme.background, minHeight: "100%" }} className='px-3'>
@@ -70,7 +57,7 @@ export default function News() {
         contentContainerStyle={{ margin: 0 }}
         refreshControl={
           <RefreshControl
-            refreshing={isFetching && !isLoading} // Show spinner only during refetch
+            refreshing={isManualRefresh} // Show spinner only during refetch
             onRefresh={onRefresh}
             colors={[theme.blue_text]}
             tintColor={theme.blue_text}
@@ -88,12 +75,16 @@ export default function News() {
           </>
         }
         ListEmptyComponent={
-          <View className="flex-1 justify-center items-center p-4">
-            <Ionicons name="alert-circle-outline" size={40} color={theme.text} />
-            <Text className="text-center text-lg mt-2" style={{ color: theme.text }}>
-              No news found matching your search.
-            </Text>
-          </View>
+          isLoading 
+          ? <View className='pt-20'>
+              <ActivityIndicator size="large" color={theme.green_text} />
+            </View>
+          : <View className="flex-1 justify-center items-center p-4 pt-20">
+              <Ionicons name="alert-circle-outline" size={40} color={theme.text} />
+              <Text className="text-center text-lg mt-2" style={{ color: theme.text }}>
+                {error ? "Failed to load news." : 'No news found matching your search.'}
+              </Text>
+            </View>
         }
       />
     </SafeAreaView>

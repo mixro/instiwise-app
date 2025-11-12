@@ -15,12 +15,12 @@ export default function ProfileBar() {
         <View className='flex-row items-center' style={{gap: 15}}>
             <Link href="/projects/create" asChild>
                 <TouchableOpacity>
-                    <MaterialIcons name="add-box" size={27} color={theme.icons} />
+                    <MaterialIcons name="add-box" size={29} color={theme.icons} />
                 </TouchableOpacity>
             </Link>
             <Link href="/settings" asChild>
                 <TouchableOpacity>
-                    <Ionicons name="settings-sharp" size={26} color={theme.icons} />
+                    <Ionicons name="settings-sharp" size={28} color={theme.icons} />
                 </TouchableOpacity>
             </Link>
         </View>
@@ -36,6 +36,6 @@ const styles = StyleSheet.create({
   },
   logo: {
     fontWeight: 500,
-    fontSize: 20,
+    fontSize: 22,
   }
 })

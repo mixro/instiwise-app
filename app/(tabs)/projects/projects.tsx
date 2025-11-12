@@ -1,4 +1,4 @@
-import { View, Text, FlatList, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, TouchableWithoutFeedback, ActivityIndicator } from 'react-native';
 import React, { useCallback, useState } from 'react';
 import { projects } from '@/src/static/dummyData';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -109,12 +109,16 @@ export default function Projects() {
           </>
         }
         ListEmptyComponent={
-          <View className="flex-1 justify-center items-center p-4">
-            <Ionicons name="alert-circle-outline" size={40} color={theme.text} />
-            <Text className="text-center text-lg mt-2" style={{ color: theme.text }}>
-              No projects found matching your search.
-            </Text>
-          </View>
+          isLoading 
+          ? <View className='pt-20'>
+              <ActivityIndicator size="large" color={theme.green_text} />
+            </View>
+          : <View className="flex-1 justify-center items-center p-4">
+              <Ionicons name="alert-circle-outline" size={40} color={theme.text} />
+              <Text className="text-center text-lg mt-2" style={{ color: theme.text }}>
+                No projects found matching your search.
+              </Text>
+            </View>
         }
       />
     </SafeAreaView>
