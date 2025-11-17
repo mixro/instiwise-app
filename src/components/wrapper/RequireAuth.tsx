@@ -34,7 +34,7 @@ export default function RequireAuth({ children }: Props) {
                 style={styles.logo}
               />
               <Text 
-                style={[{ color: theme.text }, { fontSize: 33,fontWeight: 700 }]}
+                style={{ color: theme.text, fontSize: 33,fontWeight: 700 }}
               >
                 INSTiWISE
               </Text>

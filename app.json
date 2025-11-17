@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "instiwise-app",
-    "slug": "instiwise-app",
+    "name": "INSTiWISE",
+    "slug": "INSTiWISE",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "instiwiseapp",
+    "scheme": "instiwise",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -16,9 +16,9 @@
       "package": "com.micep.instiwise",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "foregroundImage": "./assets/images/instiwise-icon-foreground.png",
+        "backgroundImage": "./assets/images/instiwise-icon-background.png",
+        "monochromeImage": "./assets/images/instiwise-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
@@ -42,12 +42,24 @@
           }
         }
       ],
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.GET_THE_IOS_URL_SCHEMA"
+        }
+      ],
       "expo-font",
       "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "bbbc053b-8d7d-41a6-ba6c-a6a7bd716f29"
+      }
     }
   }
 }

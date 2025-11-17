@@ -1,15 +1,16 @@
-import { View, Text, KeyboardAvoidingView, Dimensions, Platform, StyleSheet, ScrollView, TouchableOpacity, TextInput, Image, ActivityIndicator } from 'react-native';
+import { View, Text, KeyboardAvoidingView, Dimensions, Platform, StyleSheet, ScrollView, TouchableOpacity, TextInput, Image, ActivityIndicator, Alert } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/src/context/ThemeContext';
 import { AntDesign, Entypo, FontAwesome, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import Authbar from '@/src/components/navigation/authbar';
-import { useRegisterMutation } from '@/src/services/authApi';
+import { useGoogleLoginMutation, useRegisterMutation } from '@/src/services/authApi';
 import { setCredentials } from '@/store/slices/authSlice';
 import { router } from 'expo-router';
 import { useStorage } from '@/utils/useStorage';
 import { useAuth } from '@/src/hooks/useAuth';
 import { useAppDispatch } from '@/store/hooks';
+import { useGoogleSignIn } from '@/src/hooks/useGoogleSignIn';
 const { height } = Dimensions.get('window');
 
 export default function Signup() {
@@ -18,6 +19,8 @@ export default function Signup() {
   const { saveAuth } = useStorage();
   const { isAuthenticated } = useAuth();  
   const [register, { isLoading, error }] = useRegisterMutation();
+  const { signIn: googleSignIn } = useGoogleSignIn();
+  const [googleLogin, { isLoading: isGoogleLoading }] = useGoogleLoginMutation();
   
   // Form state
   const [email, setEmail] = useState('');
@@ -63,6 +66,25 @@ export default function Signup() {
     }
   }
 
+  const handleGoogleLogin = async () => {
+    const result = await googleSignIn();
+    if (!result) return;
+
+    try {
+      const response = await googleLogin({ idToken: result.idToken }).unwrap();
+
+      await saveAuth({
+        user: response.data.user,
+        accessToken: response.data.accessToken,
+        refreshToken: response.data.refreshToken,
+      });
+
+      router.replace('/(tabs)') 
+    } catch (error: any) {
+      Alert.alert('Login Failed', error.data?.message || 'Could not sign in');
+    }
+  };
+
   // Auto-redirect if already logged in
   useEffect(() => {
     if (isAuthenticated) router.replace('/(tabs)');
@@ -89,7 +111,13 @@ export default function Signup() {
                 </View>
                 <Text className='font-regular' style={[{ color: theme.dark_text, marginVertical: 13 }, styles.inputText]}>Sign up with Apple</Text>
               </TouchableOpacity>
-              <TouchableOpacity className='flex-row items-center gap-2 px-2.5' style={styles.input}>
+
+              <TouchableOpacity 
+                onPress={handleGoogleLogin}
+                disabled={isGoogleLoading}
+                style={styles.input}
+                className='flex-row items-center gap-2 px-2.5' 
+              >
                 <View className='w-10 pl-1'>
                   <AntDesign name="google" size={25} color="#383838ff" />
                 </View>

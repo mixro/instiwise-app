@@ -3,7 +3,7 @@ import React from 'react'
 import { ProjectsItem } from '@/src/interfaces/interfaces'
 import { useTheme } from '@/src/context/ThemeContext';
 import moment from 'moment';
-import { Feather, Ionicons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import { useLikeProjectMutation } from '@/src/services/projectsApi';
 import { useAppSelector } from '@/store/hooks';

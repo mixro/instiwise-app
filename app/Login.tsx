@@ -9,10 +9,11 @@ import {
   TouchableOpacity,
   TextInput,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { useLoginMutation } from '@/src/services/authApi';
+import { useGoogleLoginMutation, useLoginMutation } from '@/src/services/authApi';
 import { setCredentials } from '@/store/slices/authSlice';
 import { useTheme } from '@/src/context/ThemeContext';
 import { useStorage } from '@/utils/useStorage';
@@ -22,12 +23,13 @@ import { useAuth } from '@/src/hooks/useAuth';
 import { useAppDispatch } from '@/store/hooks';
 
 export default function Login() {
+  const { theme } = useTheme();
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { isAuthenticated } = useAuth();
   const { saveAuth } = useStorage();
   const [login, { isLoading, error }] = useLoginMutation();
-  const { theme } = useTheme();
+  
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -86,9 +88,8 @@ export default function Login() {
               </TouchableOpacity>
 
               <TouchableOpacity
-                className="flex-row items-center gap-2 px-2.5"
                 style={styles.input}
-                disabled={isLoading}
+                className="flex-row items-center gap-2 px-2.5"
               >
                 <View className="w-10 pl-1">
                   <AntDesign name="google" size={25} color="#383838ff" />

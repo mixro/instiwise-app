@@ -3,6 +3,7 @@ import { API_BASE_URL } from '@/src/constants/api';
 import { RootState } from '@/store';
 import { logout, setCredentials } from '@/store/slices/authSlice';
 import { useStorage } from '@/utils/useStorage';
+import { Platform } from 'react-native';
 
 interface LoginCredentials { email: string; password: string; }
 interface RegisterCredentials { email: string; password: string; }
@@ -56,8 +57,11 @@ const rawBaseQuery = fetchBaseQuery({
     if (currentUser?.accessToken) {
       headers.set('Authorization', `Bearer ${currentUser.accessToken}`);
     }
-    // Tell backend this is the mobile app (optional – skip cookie handling)
-    headers.set('x-mobile-app', 'true');
+    
+    if (Platform.OS !== "web") {
+      // Only for iOS + Android native app
+      headers.set("x-mobile-app", "true");
+    }
     return headers;
   },
 });
@@ -112,6 +116,7 @@ export const authApi = createApi({
       }),
       invalidatesTags: ['Auth'],
     }),
+
     login: builder.mutation<AuthResponse, LoginCredentials>({
       query: (credentials) => ({
         url: '/auth/login',
@@ -120,12 +125,23 @@ export const authApi = createApi({
       }),
       invalidatesTags: ['Auth'],
     }),
+
+    googleLogin: builder.mutation<AuthResponse, { idToken: string }>({
+      query: (body) => ({
+        url: '/auth/google',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: ['Auth'],
+    }),
+
     getMe: builder.query<UserDetailsResponse, void>({
       query: () => ({
         url: '/auth/me',
       }),
       providesTags: ['Auth'],
     }),
+
     setUpUsername: builder.mutation<AuthResponse, SetupUsernameCredentials>({
       query: (credentials) => ({
         url: '/auth/setup-username',
@@ -134,6 +150,7 @@ export const authApi = createApi({
       }),
       invalidatesTags: ['Auth'],
     }),
+
     changeSelfPassword: builder.mutation< { success: true; message: string }, { oldPassword: string; newPassword: string }>({
       query: (body) => ({
         url: '/auth/me/change-password',
@@ -141,6 +158,7 @@ export const authApi = createApi({
         body,
       }),
     }),
+
     refresh: builder.mutation<{ data: { accessToken: string } }, { refreshToken: string }>({
       query: (body) => ({ 
         url: '/auth/refresh', 
@@ -148,6 +166,7 @@ export const authApi = createApi({
         body         
       }),
     }),
+
     logout: builder.mutation<{ success: boolean; message: string }, { refreshToken?: string }>({
       query: (body) => ({ 
         url: '/auth/logout', 
@@ -162,6 +181,7 @@ export const authApi = createApi({
 export { baseQueryWithReauth }
 export const { 
   useLoginMutation,
+  useGoogleLoginMutation,
   useRegisterMutation,
   useGetMeQuery,
   useSetUpUsernameMutation,

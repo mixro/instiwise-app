@@ -10,24 +10,14 @@ import { useStorage } from '@/utils/useStorage';
 import React, { useEffect, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 
-/**
- * useAuth
- * -------------------------------------------------
- * • Restores user + tokens from SecureStore on first mount.
- * • Calls /me **once** after restore (only if we have a token).
- * • Provides **refetchProfile()** that safely calls RTK Query's refetch.
- * • Prevents "Cannot refetch a query that has not been started yet" by
- *   only exposing refetch **after** the query has been initialized.
- */
+
 export const useAuth = () => {
   const dispatch = useAppDispatch();
   const { currentUser } = useAppSelector((state: RootState) => state.auth);
   const { getAuth, saveAuth } = useStorage();
   const [logoutTrigger] = useLogoutMutation();
 
-  // -------------------------------------------------
   // 1. Restore from SecureStore (runs only once)
-  // -------------------------------------------------
   const restoredRef = useRef(false);
   useEffect(() => {
     if (restoredRef.current || currentUser) return;
@@ -43,9 +33,7 @@ export const useAuth = () => {
     restore();
   }, [dispatch, currentUser, getAuth]);
 
-  // -------------------------------------------------
   // 2. Initialize /me query – starts **only** when we have a token
-  // -------------------------------------------------
   const {
     data: meData,
     isLoading: meLoading,
@@ -63,9 +51,7 @@ export const useAuth = () => {
     }
   }, [meLoading, currentUser?.accessToken]);
 
-  // -------------------------------------------------
   // 3. Safe public refetch – only callable after query started
-  // -------------------------------------------------
   const refetchProfile = () => {
     if (queryStartedRef.current && typeof internalRefetch === 'function') {
       internalRefetch();
@@ -74,9 +60,7 @@ export const useAuth = () => {
     }
   };
 
-  // -------------------------------------------------
   // 4. One-time sync after /me response
-  // -------------------------------------------------
   useEffect(() => {
     if (!meData?.user || !currentUser) return;
 
@@ -106,9 +90,7 @@ export const useAuth = () => {
     }
   }, [meData, currentUser, dispatch, saveAuth]);
 
-  // -------------------------------------------------
   // 5. Logout
-  // -------------------------------------------------
   const signOut = async () => {
     try {
       await logoutTrigger({ refreshToken: currentUser?.refreshToken }).unwrap();
@@ -120,9 +102,7 @@ export const useAuth = () => {
     }
   };
 
-  // -------------------------------------------------
   // 6. Return API
-  // -------------------------------------------------
   return {
     user: currentUser,
     isAuthenticated: !!currentUser?.accessToken && !!currentUser?.refreshToken,
