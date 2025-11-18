@@ -21,6 +21,7 @@ import { AntDesign, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import Authbar from '@/src/components/navigation/authbar';
 import { useAuth } from '@/src/hooks/useAuth';
 import { useAppDispatch } from '@/store/hooks';
+import { useGoogleSignIn } from '@/src/hooks/useGoogleSignIn';
 
 export default function Login() {
   const { theme } = useTheme();
@@ -29,7 +30,8 @@ export default function Login() {
   const { isAuthenticated } = useAuth();
   const { saveAuth } = useStorage();
   const [login, { isLoading, error }] = useLoginMutation();
-  
+  const { signIn: googleSignIn } = useGoogleSignIn();
+  const [googleLogin, { isLoading: isGoogleLoading }] = useGoogleLoginMutation();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -57,6 +59,28 @@ export default function Login() {
       router.replace('/(tabs)');
     } catch (err: any) {
       console.log('Login error:', err);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    const result = await googleSignIn();
+    if (!result) return;
+    
+    try {
+      const response = await googleLogin({ idToken: result.idToken }).unwrap();
+
+      const userData = {
+        ...response.data.user,
+        accessToken: response.data.accessToken,
+        refreshToken: response.data.refreshToken,
+      }
+
+      dispatch(setCredentials(userData));
+      await saveAuth({userData});
+
+      router.replace('/(tabs)') 
+    } catch (error: any) {
+      Alert.alert('Login Failed', error.data?.message || 'Could not sign in');
     }
   };
 
@@ -88,6 +112,8 @@ export default function Login() {
               </TouchableOpacity>
 
               <TouchableOpacity
+                onPress={handleGoogleLogin}
+                disabled={isGoogleLoading}
                 style={styles.input}
                 className="flex-row items-center gap-2 px-2.5"
               >

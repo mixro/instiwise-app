@@ -16,6 +16,7 @@ export default function Profile() {
   const { user, refetchProfile } = useAuth();
   const [refreshing, setRefreshing] = React.useState(false);
 
+  
   const { data: userProjects = [], isLoading, isFetching, refetch, } = useGetUserProjectsQuery();
 
   useFocusEffect(

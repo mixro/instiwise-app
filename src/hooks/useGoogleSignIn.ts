@@ -1,11 +1,34 @@
 // src/hooks/useGoogleSignIn.ts
-import { GoogleSignin, statusCodes, User } from '@react-native-google-signin/google-signin';
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import { Alert } from 'react-native';
 import { useEffect } from 'react';
 
+
+interface GoogleSignInSuccess {
+  type: 'success';
+  idToken: string | null;
+  serverAuthCode?: string | null;
+  scopes?: string[];
+  user: {
+    id: string;
+    email: string;
+    name: string | null;
+    photo: string | null;
+    givenName?: string | null;
+    familyName?: string | null;
+  };
+}
+
+interface GoogleSignInError {
+  type: 'error';
+  error: any;
+}
+
+type GoogleSignInResponse = GoogleSignInSuccess | GoogleSignInError;
+
+
 export interface GoogleUser {
   idToken: string;
-  accessToken: string;
   user: {
     id: string;
     name: string | null;
@@ -14,12 +37,15 @@ export interface GoogleUser {
   };
 }
 
+
 export const useGoogleSignIn = () => {
   useEffect(() => {
     GoogleSignin.configure({
       webClientId: process.env.EXPO_PUBLIC_WEB_CLIENT_ID,
+      iosClientId: process.env.EXPO_PUBLIC_IOS_CLIENT_ID,
       offlineAccess: true,
       forceCodeForRefreshToken: true,
+      scopes: ['profile', 'email'],
     });
   }, []);
 
@@ -27,49 +53,42 @@ export const useGoogleSignIn = () => {
     try {
       await GoogleSignin.hasPlayServices();
 
-      // 1. Trigger sign-in
-      const result: User = await GoogleSignin.signIn();
-      console.log("result", result);
+      const response = await GoogleSignin.signIn();
 
-      // 2. Get tokens (critical for idToken)
-      const idToken = result.idToken;
-      const accessToken = result.accessToken;
-      const userInfo = result.user;
-
-      let finalIdToken = idToken;
-      let finalAccessToken = accessToken;
-      
-      if (!finalIdToken || !finalAccessToken) {
-          const tokens = await GoogleSignin.getTokens(); // Fallback
-          finalIdToken = tokens.idToken;
-          finalAccessToken = tokens.accessToken;
+      // ── Type guard: ensure we have success ──
+      if (response.type !== 'success') {
+        throw new Error('Sign-in did not return success');
       }
 
-      if (!finalIdToken) {
-        throw new Error('ID token not received');
+      const { idToken, user } = response.data;
+
+      if (!idToken) {
+        // Fallback: very rare, but safe
+        const tokens = await GoogleSignin.getTokens();
+        if (!tokens.idToken) throw new Error('No ID token available');
+        response.data.idToken = tokens.idToken;
       }
 
       return {
-        idToken: finalIdToken,
-        accessToken: finalAccessToken!, // The ! assertion is fine here
+        idToken: idToken!,
         user: {
-          id: userInfo.id,
-          name: userInfo.name,
-          email: userInfo.email,
-          photo: userInfo.photo ?? null,
+          id: user.id,                    // ← now 100% safe
+          name: user.name ?? null,
+          email: user.email,
+          photo: user.photo ?? null,
         },
       };
     } catch (error: any) {
       console.error('Google Sign-In Error:', error);
 
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        Alert.alert('Cancelled', 'Sign-in was cancelled');
+        Alert.alert('Cancelled', 'You cancelled the sign-in');
       } else if (error.code === statusCodes.IN_PROGRESS) {
-        Alert.alert('In Progress', 'Sign-in is already in progress');
+        // Already signing in
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        Alert.alert('Play Services', 'Google Play Services not available');
+        Alert.alert('Error', 'Google Play Services not available');
       } else {
-        Alert.alert('Sign-In Failed', error.message || 'Please try again');
+        Alert.alert('Login Failed', error.message || 'Please try again');
       }
 
       return null;
@@ -80,7 +99,7 @@ export const useGoogleSignIn = () => {
     try {
       await GoogleSignin.signOut();
     } catch (error) {
-      console.error('Google Sign-Out Error:', error);
+      console.error('Sign-out error:', error);
     }
   };
 

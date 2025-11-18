@@ -11,6 +11,7 @@ import { themes } from "@/src/constants/themes";
 import Sidebar from "@/src/components/navigation/sidebar";
 import { store } from '@/store';
 import { Provider } from "react-redux";
+import { StatusBar } from "expo-status-bar";
 
 export default function RootLayout() {
   const { theme } = useTheme();
@@ -37,6 +38,8 @@ export default function RootLayout() {
   return (
     <Provider store={store}>
       <ThemeProvider>
+        <StatusBar style="auto" />
+        
         <Drawer
           drawerContent={(props) => <DrawerContent {...props} />}
           screenOptions={{

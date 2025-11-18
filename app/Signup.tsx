@@ -73,11 +73,14 @@ export default function Signup() {
     try {
       const response = await googleLogin({ idToken: result.idToken }).unwrap();
 
-      await saveAuth({
-        user: response.data.user,
+      const userData = {
+        ...response.data.user,
         accessToken: response.data.accessToken,
         refreshToken: response.data.refreshToken,
-      });
+      }
+
+      dispatch(setCredentials(userData));
+      await saveAuth({userData});
 
       router.replace('/(tabs)') 
     } catch (error: any) {
