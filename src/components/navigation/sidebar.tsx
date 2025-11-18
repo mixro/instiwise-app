@@ -5,19 +5,23 @@ import { AntDesign, Ionicons, MaterialIcons } from '@expo/vector-icons'
 import { useTheme } from '@/src/context/ThemeContext';
 import { useAuth } from '@/src/hooks/useAuth';
 import { useRouter } from 'expo-router';
+import { useGoogleSignIn } from '@/src/hooks/useGoogleSignIn';
 
 export default function Sidebar() {
   const { theme } = useTheme();
   const { signOut } = useAuth(); 
+  const { user } = useAuth();
+  const { googleSignOut } = useGoogleSignIn();
   const router = useRouter();
 
   const handleLogout = async () => {
     try {
+        user?.googleId && await googleSignOut();
         await signOut();
         router.replace('/login');
     } catch(error) {
         console.log('Logout error:', error);
-    }
+    }''
   }
 
   return (

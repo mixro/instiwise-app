@@ -118,11 +118,12 @@ export default function Signup() {
               <TouchableOpacity 
                 onPress={handleGoogleLogin}
                 disabled={isGoogleLoading}
+                activeOpacity={0.7}
                 style={styles.input}
                 className='flex-row items-center gap-2 px-2.5' 
               >
                 <View className='w-10 pl-1'>
-                  <AntDesign name="google" size={25} color="#383838ff" />
+                  <AntDesign name="google" size={25} color="blue" />
                 </View>
                 <Text className='font-regular' style={[{ color: theme.dark_text, marginVertical: 13 }, styles.inputText]}>Sign up with Google</Text>
               </TouchableOpacity>

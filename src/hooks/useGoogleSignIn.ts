@@ -79,8 +79,6 @@ export const useGoogleSignIn = () => {
         },
       };
     } catch (error: any) {
-      console.error('Google Sign-In Error:', error);
-
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         Alert.alert('Cancelled', 'You cancelled the sign-in');
       } else if (error.code === statusCodes.IN_PROGRESS) {
@@ -95,7 +93,7 @@ export const useGoogleSignIn = () => {
     }
   };
 
-  const signOut = async () => {
+  const googleSignOut = async () => {
     try {
       await GoogleSignin.signOut();
     } catch (error) {
@@ -103,5 +101,5 @@ export const useGoogleSignIn = () => {
     }
   };
 
-  return { signIn, signOut };
+  return { signIn, googleSignOut };
 };

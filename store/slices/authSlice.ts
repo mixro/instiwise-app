@@ -3,6 +3,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 export interface CurrentUser {
   _id: string;
   username?: string; // Optional until setup
+  googleId?: string; // Optional for google authentification
   email: string;
   img?: string;
   phone?: string;

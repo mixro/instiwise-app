@@ -14,6 +14,7 @@ interface AuthResponse {
     user: {
       _id: string;
       username?: string;
+      googleId?: string;
       img?: string;
       bio?: string;
       awards: { name: string; date: Date; description?: string }[];
@@ -32,6 +33,7 @@ interface UserDetailsResponse {
   user: {
     _id: string;
     username: string;
+    googleId?: string;
     email: string;
     img: string;
     bio?: string;
