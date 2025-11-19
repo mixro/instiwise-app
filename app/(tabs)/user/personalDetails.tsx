@@ -19,6 +19,9 @@ export default function personalDetails() {
     const { user: authUser, refetchProfile } = useAuth();
     const dispatch = useAppDispatch();
     const { saveAuth } = useStorage();
+    const { pickImage, uploadImage, uploading, progress } = useImageUpload();
+    const [selectedImage, setSelectedImage] = useState<ImageAsset | null>(null);
+    const [updateUser, { isLoading, error, isSuccess }] = useUpdateUserMutation();
 
     // Form + original state (to detect changes)
     const [form, setForm] = useState({
@@ -44,10 +47,6 @@ export default function personalDetails() {
             setOriginal(data);
         }
     }, [authUser]);
-
-    // Image upload (appwrite)
-    const { pickImage, uploadImage, uploading, progress } = useImageUpload();
-    const [selectedImage, setSelectedImage] = useState<ImageAsset | null>(null);
 
     const handleSelectImage = async () => {
         const asset = await pickImage();
@@ -80,8 +79,6 @@ export default function personalDetails() {
         });
         return changes;
     };
-
-    const [updateUser, { isLoading, error, isSuccess }] = useUpdateUserMutation();
     
     // Submit handler
     const handleSubmit = async () => {
@@ -127,6 +124,8 @@ export default function personalDetails() {
             dispatch(setCredentials(updatedUser));
             await saveAuth(updatedUser);
             refetchProfile?.();
+
+            setSelectedImage(null);
 
             Alert.alert('Success', 'Your profile have been updated.');
             router.back();
@@ -247,12 +246,12 @@ export default function personalDetails() {
 
                     {error && (
                         <Text style={{ color: 'red', marginTop: 12, textAlign: 'center' }}>
-                        {(error as any).data?.message ?? 'Failed to update profile'}
+                            {(error as any).data?.message ?? 'Failed to update profile'}
                         </Text>
                     )}
                     {isSuccess && (
                         <Text style={{ color: 'green', marginTop: 12, textAlign: 'center' }}>
-                        Profile updated successfully!
+                            Profile updated successfully!
                         </Text>
                     )}
 
