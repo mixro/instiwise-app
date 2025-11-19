@@ -1,16 +1,22 @@
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { EventItem } from '../../interfaces/interfaces';
 import { useTheme } from '@/src/context/ThemeContext';
 import { Entypo, Feather, FontAwesome6, Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { useToggleFavoriteMutation } from '@/src/services/eventsApi';
 import * as Haptics from 'expo-haptics';
 import { useAppSelector } from '@/store/hooks';
+import { useScheduleEventReminder } from '@/src/hooks/useScheduleEventReminder';
 
 export default function EventCard({ eventItem, onFavorite, isFavorited: externalIsFavorited, }: { eventItem: EventItem; onFavorite?: () => void; isFavorited?: boolean;}) {
     const { theme } = useTheme();
     const [toggleFavorite, { isLoading }] = useToggleFavoriteMutation();
     const userId = useAppSelector((state) => state.auth.currentUser?._id);
+    const { schedule30MinReminder } = useScheduleEventReminder();
+
+    useEffect(() => {
+      schedule30MinReminder(eventItem);
+    }, [eventItem]);
     
     const isFavorited = externalIsFavorited ?? (userId ? (eventItem.favorites ?? []).includes(userId) : false);
 
