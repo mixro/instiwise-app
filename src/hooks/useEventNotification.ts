@@ -7,7 +7,10 @@ export const useEventNotification = () => {
   useEffect(() => {
     const setup = async () => {
       const { status } = await Notifications.requestPermissionsAsync();
-      if (status !== 'granted') return;
+      if (status !== 'granted') {
+        console.log('Notification permissions not granted');
+        return;
+      }
 
       await registerBackgroundTask();
 

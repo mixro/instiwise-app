@@ -9,6 +9,7 @@ interface EventItem {
 
 export const useScheduleEventReminder = () => {
   const schedule30MinReminder = async (event: EventItem) => {
+    // ... (Date parsing logic remains the same) ...
     const [day, month, year] = event.date.split('/').map(Number);
     const [time, period] = event.start.split(' ');
     let [hours, minutes] = time.split(':').map(Number);
@@ -18,18 +19,23 @@ export const useScheduleEventReminder = () => {
 
     const eventDate = new Date(year, month - 1, day, hours, minutes);
 
-    const trigger = new Date(eventDate.getTime() - 30 * 60 * 1000); // 30 mins before
+    const reminderDate = new Date(eventDate.getTime() - 30 * 60 * 1000); // 30 mins before
 
-    if (trigger < new Date()) return; // don't schedule past events
+    if (reminderDate < new Date()) return; // don't schedule past events
+
+    const trigger = {
+      date: reminderDate,
+      type: 'date', // Use the literal string
+    } as Notifications.NotificationTriggerInput;
 
     await Notifications.scheduleNotificationAsync({
       content: {
         title: 'Event in 30 minutes!',
         body: event.header,
-        sound: true, // uses system default sound
+        sound: true, 
         data: { screen: 'calendar', eventId: event._id },
       },
-      trigger,
+      trigger, 
     });
   };
 
