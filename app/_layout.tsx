@@ -12,11 +12,20 @@ import Sidebar from "@/src/components/navigation/sidebar";
 import { store } from '@/store';
 import { Provider } from "react-redux";
 import { StatusBar } from "expo-status-bar";
+import { setupNotificationHandlers } from "@/src/services/notificationConfig";
+import { useEventNotification } from "@/src/hooks/useEventNotification";
 
 export default function RootLayout() {
   const { theme } = useTheme();
   const [fontLoaded, setFontLoaded] = useState(false);
+
+  // Event notification handler
+  useEffect(() => {
+    setupNotificationHandlers();
+  }, []);
+  useEventNotification();
   
+  // font (Poppins)
   useEffect(() => {
     async function loadFonts() {
       await Font.loadAsync({

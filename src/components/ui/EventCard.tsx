@@ -12,13 +12,18 @@ export default function EventCard({ eventItem, onFavorite, isFavorited: external
     const { theme } = useTheme();
     const [toggleFavorite, { isLoading }] = useToggleFavoriteMutation();
     const userId = useAppSelector((state) => state.auth.currentUser?._id);
-    const { schedule30MinReminder } = useScheduleEventReminder();
+    const { schedule30MinReminder, cancelReminder } = useScheduleEventReminder();
+
+    const isFavorited = externalIsFavorited ?? (userId ? (eventItem.favorites ?? []).includes(userId) : false);
 
     useEffect(() => {
-      schedule30MinReminder(eventItem);
-    }, [eventItem]);
+      if (isFavorited) {
+        schedule30MinReminder(eventItem);
+      } else {
+        cancelReminder(eventItem._id);
+      }
+    }, [isFavorited, eventItem]);
     
-    const isFavorited = externalIsFavorited ?? (userId ? (eventItem.favorites ?? []).includes(userId) : false);
 
     const handlePress = () => {
       if (onFavorite) {

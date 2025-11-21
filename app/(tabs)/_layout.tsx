@@ -2,8 +2,6 @@ import { Redirect, Tabs } from 'expo-router';
 import { View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/src/context/ThemeContext';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store';
 import RequireAuth from '@/src/components/wrapper/RequireAuth';
 
 export default function TabLayout() {

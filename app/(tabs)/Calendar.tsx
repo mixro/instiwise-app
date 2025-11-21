@@ -11,6 +11,7 @@ import { ScrollView } from 'react-native';
 import { useGetEventsQuery } from '@/src/services/eventsApi';
 import { useFocusEffect } from 'expo-router';
 import { useAppSelector } from '@/store/hooks';
+import { useScheduleEventReminder } from '@/src/hooks/useScheduleEventReminder';
 
 type FilterType = 'all' | 'upcoming' | 'favourites' | 'ongoing'  | 'past';
 
@@ -20,7 +21,7 @@ export default function Calendar() {
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
   const [isManualRefresh, setIsManualRefresh] = useState(false);
   const userId = useAppSelector((state) => state.auth.currentUser?._id);
-
+  
   const { data: events = [], isLoading, isFetching, refetch } = useGetEventsQuery();
 
   // Auto-refetch on focus
