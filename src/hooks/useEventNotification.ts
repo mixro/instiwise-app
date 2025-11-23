@@ -13,7 +13,6 @@ export const useEventNotification = () => {
         return;
       }
 
-
       // 2. Android channel (recommended)
       if (Platform.OS === 'android') {
         await Notifications.setNotificationChannelAsync('default', {
@@ -26,7 +25,28 @@ export const useEventNotification = () => {
         });
       }
 
-      // 3. Global listener: when user taps a notification
+      // 3. Initial Launch Check (Handles app launching from a closed state)
+      const response = await Notifications.getLastNotificationResponseAsync();
+
+      if (response) {
+          const data = response.notification.request.content.data as {
+              screen?: string;
+              eventId?: string;
+          };
+
+          // If the app launched due to a notification tap, immediately navigate
+          if (data?.screen === 'calendar' && data.eventId) {
+              // Use router.push or router.replace here
+              router.replace({ 
+                  pathname: '/(tabs)/calendar',
+                  params: { highlightEventId: data.eventId },
+              });
+              // CRITICAL: Return immediately so the listener doesn't try to handle it again
+              return;
+          }
+      }
+
+      // 4. Global listener: when user taps a notification
       const subscription = Notifications.addNotificationResponseReceivedListener(response => {
         const data = response.notification.request.content.data as {
           screen?: string;
@@ -47,23 +67,7 @@ export const useEventNotification = () => {
 
       return () => subscription.remove();
     };
-
-    const debugNotifications = async () => {
-        if (__DEV__) {
-            const scheduled = await Notifications.getAllScheduledNotificationsAsync();
-            console.log('Scheduled notifications count:', scheduled.length);
-            console.table(
-                scheduled.map(n => ({
-                    identifier: n.identifier,
-                    title: n.content.title,
-                    body: n.content.body,
-                    trigger: n.trigger,
-                    data: n.content.data,
-                }))
-            );
-        }
-    };
+    
     setupNotifications();
-    debugNotifications();
   }, []);
 };

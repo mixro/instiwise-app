@@ -6,12 +6,16 @@ import { Platform } from 'react-native';
 export const setupNotificationHandlers = () => {
   // Set handler for foreground notification display
   Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-      shouldPlaySound: true,
-      shouldSetBadge: false,
-      shouldShowBanner: true, 
-      shouldShowList: true,
-    }),
+    handleNotification: async (notification) => {
+      const isEventReminder = notification.request.content.data.screen === 'calendar';
+      return {
+        shouldShowAlert: !isEventReminder,
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+        shouldShowBanner: true, 
+        shouldShowList: true,
+      };
+    },
   });
 
   // Configure the channel for Android (Good practice)

@@ -2,6 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { EventItem } from '@/src/interfaces/interfaces';
 import { RootState } from '@/store/index';
 import { baseQueryWithReauth } from './authApi';
+import { cancelReminder, schedule30MinReminder } from './eventsNotifications';
 
 export const eventsApi = createApi({
   reducerPath: 'eventsApi',
@@ -11,6 +12,36 @@ export const eventsApi = createApi({
     getEvents: builder.query<EventItem[], void>({
       query: () => '/events',
       transformResponse: (response: { data: EventItem[] }) => response.data,
+
+      // (notification) Schedule reminders after the main data fetch (on successful cache update)
+      async onCacheEntryAdded(
+        arg, 
+        { dispatch, getState, getCacheEntry, cacheEntryRemoved, cacheDataLoaded }
+      ) {
+        await cacheDataLoaded;
+
+        
+        const state = getState() as RootState;
+        const userId = state.auth.currentUser?._id;
+        
+        if (!userId) return;
+        
+        const { data: events } = getCacheEntry();
+        if (!events) return;
+        
+        events.forEach(event => {
+          const isFavorited = (event.favorites || []).includes(userId);
+          
+          if (isFavorited) {
+            schedule30MinReminder(event);
+          } else {
+            cancelReminder(event._id);
+          }
+        });
+        
+        await cacheEntryRemoved;
+      },
+
       providesTags: (result) =>
         result
           ? [
@@ -20,22 +51,19 @@ export const eventsApi = createApi({
           : [{ type: 'Events', id: 'LIST' }],
     }),
 
-    getUpcomingEvents: builder.query<EventItem[], void>({
-      query: () => '/events/upcoming',
-      transformResponse: (res: { data: EventItem[] }) => res.data,
-      providesTags: ['UpcomingEvents'],
-    }),
-
-    // NEW: Toggle favorite
+        // NEW: Toggle favorite
     toggleFavorite: builder.mutation<{ isFavorited: boolean; favoriteCount: number }, string>({
       query: (eventId) => ({
         url: `/events/${eventId}/favorite`,
         method: 'PATCH',
       }),
+
       async onQueryStarted(eventId, { dispatch, getState, queryFulfilled }) {
         const state = getState() as RootState;
         const userId = state.auth.currentUser?._id;
         if (!userId) return;
+
+        let eventToScheduleOrCancel: EventItem | undefined;
 
         // 1. Update Home (upcoming)
         const patchUpcoming = dispatch(
@@ -67,6 +95,17 @@ export const eventsApi = createApi({
           })
         );
 
+        // 3. notification scheduling
+        if (eventToScheduleOrCancel) {
+          const isNowFavorited = (eventToScheduleOrCancel.favorites || []).includes(userId);
+
+          if (isNowFavorited) {
+            schedule30MinReminder(eventToScheduleOrCancel);
+          } else {
+            cancelReminder(eventToScheduleOrCancel._id);
+          }
+        }
+
         try {
           await queryFulfilled;
         } catch {
@@ -77,6 +116,13 @@ export const eventsApi = createApi({
       // Optional: invalidate to sync with server
       invalidatesTags: ['UpcomingEvents', 'Events'],
     }),
+
+    getUpcomingEvents: builder.query<EventItem[], void>({
+      query: () => '/events/upcoming',
+      transformResponse: (res: { data: EventItem[] }) => res.data,
+      providesTags: ['UpcomingEvents'],
+    }),
+
   }),
 });
 

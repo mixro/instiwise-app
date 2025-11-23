@@ -34,7 +34,7 @@ export default function RequireAuth({ children }: Props) {
                 style={styles.logo}
               />
               <Text 
-                style={{ color: theme.text, fontSize: 33,fontWeight: 700 }}
+                style={{ color: theme.text, fontSize: 28,fontWeight: 600 }}
               >
                 INSTiWISE
               </Text>
@@ -59,8 +59,8 @@ export default function RequireAuth({ children }: Props) {
 
 const styles = StyleSheet.create({
   logo: {
-    width: 65,
-    height: 65
+    width: 58,
+    height: 58
   },
   profileImg: {
     width: 50,

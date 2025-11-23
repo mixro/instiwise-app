@@ -12,7 +12,7 @@ import Sidebar from "@/src/components/navigation/sidebar";
 import { store } from '@/store';
 import { Provider } from "react-redux";
 import { StatusBar } from "expo-status-bar";
-import { setupNotificationHandlers } from "@/src/services/notificationConfig";
+import { setupNotificationHandlers } from "@/src/config/notificationConfig";
 import { useEventNotification } from "@/src/hooks/useEventNotification";
 
 export default function RootLayout() {
