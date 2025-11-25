@@ -14,20 +14,15 @@ export const schedule30MinReminder = async (event: EventItem) => {
   const eventMoment = moment(eventDateTimeString, 'DD/MM/YYYY hh:mm A');
 
   if (!eventMoment.isValid()) {
-    console.error('Invalid event time:', eventDateTimeString);
+    console.log('Invalid event time:', eventDateTimeString);
     return;
   }
 
   // This is the exact fire time: 30 minutes before
-  const reminderTime = eventMoment.clone().subtract(30, 'minutes');
+  const reminderTime = eventMoment.clone().subtract(31, 'minutes');
   const reminderDate = reminderTime.toDate(); // ← Pure JS Date object
 
   const now = moment();
-
-  console.log('Event:', event.header);
-  console.log('Event time (local):', eventMoment.format('DD MMM YYYY, hh:mm A'));
-  console.log('Reminder time (local):', reminderTime.format('DD MMM YYYY, hh:mm A'));
-  console.log('Reminder Date object:', reminderDate.toLocaleString());
 
   // Skip if already passed
   if (reminderTime.isBefore(now)) {
@@ -53,7 +48,7 @@ export const schedule30MinReminder = async (event: EventItem) => {
       trigger,
     });
 
-    console.log(`SUCCESS: Reminder scheduled for ${reminderTime.format('hh:mm A')} (30 min before event)`);
+    console.log(`✅ SUCCESS: Reminder scheduled for \nEvent: ${event.header} \nTime: ${reminderTime.format('DD MMM YYYY, hh:mm A')} (30 min before event)`);
   } catch (error) {
     console.log('scheduleNotificationAsync failed:', error);
   }

@@ -162,7 +162,7 @@ export default function UpdateProject() {
     <SafeAreaView edges={['top']} style={{ backgroundColor: theme.background, flex: 1 }} className='px-4'>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <ScrollView showsVerticalScrollIndicator={false}>
-          <Navbar title='UPDATE PROJECT' />
+          <Navbar path={`/projects/${id}`} title='UPDATE PROJECT' />
 
           <View className='pb-7'>
             {/* Title */}

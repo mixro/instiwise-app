@@ -144,7 +144,7 @@ export default function personalDetails() {
                 showsVerticalScrollIndicator={false}
             >
                 <View className='pb-6'>
-                    <Navbar title='Update your details' />
+                    <Navbar path="/settings" title='Update your details' />
 
                     <View className='flex-column items-center justify-center mt-3'>
                         <View style={{borderColor: theme.text}} className="relative rounded-full p-0.5 border border-2 flex-row items-center justify-center">

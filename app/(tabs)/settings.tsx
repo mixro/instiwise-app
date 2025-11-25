@@ -16,7 +16,7 @@ export default function Settings() {
       >
         <View>
           <View>
-            <Navbar title="Settings" />
+            <Navbar path="/profile" title="Settings" />
 
             <View style={{paddingVertical: 20, paddingHorizontal: 2}}>
               <View>

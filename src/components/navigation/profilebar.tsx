@@ -3,9 +3,11 @@ import React from 'react'
 import { useTheme } from '@/src/context/ThemeContext';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
 
 export default function ProfileBar() {
     const { theme } = useTheme();
+    const navigation = useNavigation() as any;
 
   return (
     <View className="flex-row" style={styles.navbar}>

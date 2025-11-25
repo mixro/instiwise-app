@@ -2,7 +2,6 @@ import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshContr
 import React, { useCallback, useMemo, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useTheme } from '@/src/context/ThemeContext';
-import { events } from '@/src/static/dummyData';
 import { Ionicons } from '@expo/vector-icons';
 import { EventItem, CalendarItem } from '../../src/interfaces/interfaces';
 import EventCard from '@/src/components/ui/EventCard';
@@ -11,8 +10,6 @@ import { ScrollView } from 'react-native';
 import { useGetEventsQuery } from '@/src/services/eventsApi';
 import { useFocusEffect } from 'expo-router';
 import { useAppSelector } from '@/store/hooks';
-import { schedule30MinReminder } from '@/src/services/eventsNotifications';
-import moment from 'moment';
 
 type FilterType = 'all' | 'upcoming' | 'favourites' | 'ongoing'  | 'past';
 
@@ -31,29 +28,6 @@ export default function Calendar() {
       refetch();
     }, [refetch])
   );
-
-  const testReminder = async () => {
-    await schedule30MinReminder({
-      _id: "690f38bfd8f39257b5f4e729c",
-  userId: "68ff7ec8bd7e22a2340b37c0",
-  header: "Tech Innovation Workshop",
-  location: "Innovation Hub",
-  category: "Workshop",
-  date: "23/11/2025",
-  start: moment().add(5, 'minutes').format('hh:mm A'),
-  end: "11:50 PM",
-  favorites: [
-    "690119cda80052bb771cdbda",
-    "68fd4d35355db29d60576867",
-    "691c6272aca90f696d10fa03",
-  ],
-  img: undefined, // (not provided)
-  desc: "Workshop focused on modern tech innovations and entrepreneurship",
-  createdAt: "2025-11-08T12:34:07.445Z",
-  updatedAt: "2025-11-22T06:55:53.212Z",
-    });
-    console.log("reached")
-  };
 
   // Pull-to-refresh
   const onRefresh = useCallback(() => {
@@ -220,11 +194,6 @@ const flatData: CalendarItem[] = useMemo(() => {
                 value={searchQuery}
                 onChangeText={setSearchQuery}
               />
-
-              <TouchableOpacity onPress={testReminder}>
-                <Text className='text-4xl'>Test</Text>
-              </TouchableOpacity>
-
               <View className='pb-3'>
                 <ScrollView
                   horizontal

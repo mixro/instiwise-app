@@ -1,15 +1,27 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import React from 'react'
 import { useTheme } from '@/src/context/ThemeContext';
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-import { Link, router } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import type { Href } from 'expo-router/build/types';
 
-export default function Navbar({title} :{title: string}) {
-    const { theme } = useTheme();
+interface CustomLinkProps {
+  path: Href; 
+  title: string;
+}
+
+export default function Navbar({ path , title }: CustomLinkProps) {
+  const { theme } = useTheme();
+
+  const handlePress = () => {
+    router.replace(path);
+  };
 
   return (
     <View className="flex-row" style={styles.navbar}>
-        <TouchableOpacity onPress={router.back}>
+        <TouchableOpacity 
+          onPress={handlePress}
+        >
             <Ionicons name="arrow-back" size={26} color={theme.text} />
         </TouchableOpacity>
         <Text className='text-xl font-semibold' style={{color: theme.text}}>{title}</Text>

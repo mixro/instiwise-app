@@ -58,7 +58,7 @@ export default function Login() {
       
       router.replace('/(tabs)');
     } catch (err: any) {
-      console.log('Login error:', err);
+      console.log('Login error:', err || 'Could not sign in');
     }
   };
 

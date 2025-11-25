@@ -117,7 +117,7 @@ export default function create() {
         <ScrollView
           showsVerticalScrollIndicator={false}
         >
-          <Navbar title='CREATE NEW PROJECT' />
+          <Navbar path="/profile" title='CREATE NEW PROJECT' />
 
           <View className='pb-7'>
             {/* Title */}

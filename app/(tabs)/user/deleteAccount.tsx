@@ -52,7 +52,7 @@ export default function deleteAccount() {
         showsVerticalScrollIndicator={false}
       >
         <View className='flex-column' style={{minHeight: "100%"}}>
-          <Navbar title='Delete your account' />
+          <Navbar path="/settings" title='Delete your account' />
 
           <View 
             style={[{borderColor: theme.border, backgroundColor: theme.border}, styles.profileContainer]} 

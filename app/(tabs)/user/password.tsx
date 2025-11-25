@@ -65,7 +65,7 @@ export default function password() {
             <ScrollView
                 showsVerticalScrollIndicator={false}
             >
-                <Navbar title='Update your password' />
+                <Navbar path="/settings" title='Update your password' />
 
                 <View className='pt-6'>
                     <Text className='text-lg mb-3 font-medium' style={{color: theme.text}}>Current password</Text>
