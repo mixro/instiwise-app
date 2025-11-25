@@ -8,6 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import ArrayInput from '@/src/components/ui/ArrayInput';
 import { ImageAsset, useImageUpload } from '@/src/hooks/useImageUpload';
 import { useCreateProjectMutation } from '@/src/services/projectsApi';
+import Toast from 'react-native-toast-message';
 const { height } = Dimensions.get('window');
 
 export default function create() {
@@ -98,12 +99,20 @@ export default function create() {
       }).unwrap();
 
       Alert.alert('Success', 'Project created successfully!', [{ text: 'OK' }]);
+      Toast.show({
+        type: 'bigSuccess',
+        text1: 'Success!',
+        text2: 'Project created successfully!',
+        position: 'bottom', 
+      });
 
       // Reset
       setInputs({ title: '', desc: '', category: '', problem: '', duration: '', status: '' });
       setSelectedImage(null);
       setArrays({ goals: [], scope: [], budget: [], resources: [], challenges: [], plan: [] });
+
     } catch (error: any) {
+      
       Alert.alert('Error', error.data?.message || 'Failed to create project');
     }
   };

@@ -12,6 +12,7 @@ import { setCredentials } from '@/store/slices/authSlice';
 import { router } from 'expo-router';
 import { Image } from 'react-native';
 import { ImageAsset, useImageUpload } from '@/src/hooks/useImageUpload';
+import Toast from 'react-native-toast-message';
 const { height } = Dimensions.get('window');
 
 export default function personalDetails() {
@@ -99,7 +100,6 @@ export default function personalDetails() {
 
         // Upload image if selected
         if (selectedImage) {
-            console.log("started")
             const uploadResult = await uploadImage(selectedImage);
             if (!uploadResult) {
                 Alert.alert('Upload Failed', 'Could not upload profile image');
@@ -107,7 +107,6 @@ export default function personalDetails() {
             }
             imgUrl = uploadResult.url;
             updates.img = imgUrl;
-            console.log(imgUrl);
         }
 
         try {
@@ -127,10 +126,19 @@ export default function personalDetails() {
 
             setSelectedImage(null);
 
-            Alert.alert('Success', 'Your profile have been updated.');
-            router.back();
+            Toast.show({
+                type: 'bigSuccess', 
+                text1: 'Your profile have been updated.',
+                position: 'bottom', 
+            });
+            router.replace('/settings');
+
         } catch (err: any) {
-            Alert.alert('Error', err?.data?.message ?? 'Failed to update profile.');
+            Toast.show({
+                type: "bigError",
+                text1: (err as any).data?.message ?? "Failed to update profile",
+                position: "bottom",
+            });
         }
     };
 
@@ -243,17 +251,6 @@ export default function personalDetails() {
                             placeholderTextColor="#494949ff"
                         />
                     </View>
-
-                    {error && (
-                        <Text style={{ color: 'red', marginTop: 12, textAlign: 'center' }}>
-                            {(error as any).data?.message ?? 'Failed to update profile'}
-                        </Text>
-                    )}
-                    {isSuccess && (
-                        <Text style={{ color: 'green', marginTop: 12, textAlign: 'center' }}>
-                            Profile updated successfully!
-                        </Text>
-                    )}
 
                     <View className='pt-10'>
                         <TouchableOpacity 

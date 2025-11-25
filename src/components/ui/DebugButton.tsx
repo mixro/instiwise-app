@@ -1,5 +1,3 @@
-import { themes } from "@/src/constants/themes";
-import { useTheme } from "@/src/context/ThemeContext";
 import { useAuth } from "@/src/hooks/useAuth";
 import { useStorage } from "@/utils/useStorage";
 import { Entypo } from "@expo/vector-icons";

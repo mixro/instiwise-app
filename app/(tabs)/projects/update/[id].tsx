@@ -11,6 +11,7 @@ import { useGetProjectByIdQuery, useUpdateProjectMutation,} from '@/src/services
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { Dimensions } from 'react-native';
+import Toast from 'react-native-toast-message';
 
 const { height } = Dimensions.get('window');
 
@@ -115,7 +116,11 @@ export default function UpdateProject() {
     if (selectedImage) {
       const uploadResult = await uploadImage(selectedImage);
       if (!uploadResult) {
-        Alert.alert('Upload Failed', 'Could not upload image');
+          Toast.show({
+              type: "bigError",
+              text1: 'Upload Failed: Could not upload image',
+              position: "bottom",
+          });
         return;
       }
       imgUrl = uploadResult.url;
@@ -143,10 +148,20 @@ export default function UpdateProject() {
       }).unwrap();
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      Alert.alert('Success', 'Project updated!', [{ text: 'OK', onPress: () => router.back() }]);
+      Toast.show({
+          type: 'bigSuccess', 
+          text1: 'Project updated successfully!!.',
+          position: 'bottom', 
+      });
+      router.replace(`/projects/${id}`);
+
     } catch (error: any) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-      Alert.alert('Error', error.data?.message || 'Failed to update project');
+      Toast.show({
+          type: "bigError",
+          text1: `Error: ${error.data?.message || "Failed to update project"}`,
+          position: "bottom",
+      });
     }
   };
 

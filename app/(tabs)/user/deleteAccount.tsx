@@ -8,6 +8,7 @@ import { Image } from 'react-native';
 import { useAuth } from '@/src/hooks/useAuth';
 import { useDeleteUserMutation } from '@/src/services/userApi';
 import { router } from 'expo-router';
+import Toast from 'react-native-toast-message';
 
 export default function deleteAccount() {
   const { theme } = useTheme();
@@ -39,6 +40,12 @@ export default function deleteAccount() {
 
       // Clear auth & go to login
       await signOut();
+      Toast.show({
+          type: 'bigSuccess', 
+          text1: 'Account deleted successfully.',
+          position: 'bottom', 
+      });
+
       router.replace('/login');
     } catch (err: any) {
       Alert.alert('Error', err?.data?.message || 'Failed to delete account');

@@ -10,6 +10,7 @@ import { useAppSelector } from '@/store/hooks';
 import { useDeleteProjectMutation, useGetProjectByIdQuery, useLikeProjectMutation } from '@/src/services/projectsApi';
 import { Fontisto, Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import Toast from 'react-native-toast-message';
 
 export default function project() {
   const { theme } = useTheme();
@@ -66,8 +67,16 @@ export default function project() {
             try {
               await deleteProject(id).unwrap();
               Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-              router.back(); // Go back after delete
+
+              Toast.show({
+                  type: 'bigSuccess', 
+                  text1: 'Project deleted successfully!!.',
+                  position: 'bottom', 
+              });
+              router.replace('/projects/projects'); 
+
             } catch (error) {
+              
               Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
               Alert.alert('Error', 'Failed to delete project');
             }

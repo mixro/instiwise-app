@@ -14,6 +14,8 @@ import { Provider } from "react-redux";
 import { StatusBar } from "expo-status-bar";
 import { setupNotificationHandlers } from "@/src/config/notificationConfig";
 import { useEventNotification } from "@/src/hooks/useEventNotification";
+import Toast from 'react-native-toast-message';
+import { BigErrorToast, BigSuccessToast } from "@/src/components/ui/CustomToast";
 
 export default function RootLayout() {
   const { theme } = useTheme();
@@ -25,7 +27,7 @@ export default function RootLayout() {
   }, []);
   useEventNotification();
   
-  // font (Poppins)
+  // Font (Poppins)
   useEffect(() => {
     async function loadFonts() {
       await Font.loadAsync({
@@ -43,6 +45,11 @@ export default function RootLayout() {
     return null; 
   }
 
+  const toastConfig = {
+    bigSuccess: BigSuccessToast,
+    bigError: BigErrorToast,
+  };
+
 
   return (
     <Provider store={store}>
@@ -50,60 +57,23 @@ export default function RootLayout() {
         <StatusBar style="auto" />
         
         <Drawer
-          drawerContent={(props) => <DrawerContent {...props} />}
+          drawerContent={() => <DrawerContent />}
           screenOptions={{
             headerShown: false,
             drawerStyle: { backgroundColor: theme.background, width: '80%' },
             drawerActiveTintColor: theme.tabActiveTint,
             drawerInactiveTintColor: theme.tabInactiveTint,
           }}
-        >
-          <Drawer.Screen
-            name="(tabs)"
-            options={{
-              title: 'Home',
-              drawerIcon: ({ color, size }) => (
-                <Ionicons name="home" color={color} size={size} />
-              ),
-            }}
-          />
+        />
 
-          {/* PUBLIC SCREENS */}
-          <Drawer.Screen
-            name="signup"
-            options={{
-              title: 'Sign Up',
-              drawerIcon: ({ color, size }) => (
-                <Ionicons name="person-add" color={color} size={size} />
-              ),
-            }}
-          />
-          <Drawer.Screen
-            name="setupUsername"
-            options={{
-              title: 'Sign Up',
-              drawerIcon: ({ color, size }) => (
-                <Ionicons name="person-add" color={color} size={size} />
-              ),
-            }}
-          />
-          <Drawer.Screen
-            name="login"
-            options={{
-              title: 'Login',
-              drawerIcon: ({ color, size }) => (
-                <Ionicons name="log-in" color={color} size={size} />
-              ),
-            }}
-          />
-        </Drawer>
+        <Toast config={toastConfig} bottomOffset={110} />
       </ThemeProvider>
     </Provider>
   );
 }
 
 
-function DrawerContent(props: any) {
+function DrawerContent() {
   const { theme, toggleTheme } = useTheme();
   const isDarkMode = theme === themes.dark;
 
