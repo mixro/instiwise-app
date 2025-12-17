@@ -48,7 +48,7 @@ export const schedule30MinReminder = async (event: EventItem) => {
       trigger,
     });
 
-    console.log(`✅ SUCCESS: Reminder scheduled for \nEvent: ${event.header} \nTime: ${reminderTime.format('DD MMM YYYY, hh:mm A')} (30 min before event)`);
+    // console.log(`✅ SUCCESS: Reminder scheduled for \nEvent: ${event.header} \nTime: ${reminderTime.format('DD MMM YYYY, hh:mm A')} (30 min before event)`);
   } catch (error) {
     console.log('scheduleNotificationAsync failed:', error);
   }
@@ -56,5 +56,5 @@ export const schedule30MinReminder = async (event: EventItem) => {
 
 export const cancelReminder = async (eventId: string) => {
   await Notifications.cancelScheduledNotificationAsync(REMINDER_IDENTIFIER_PREFIX + eventId);
-  console.log(`Reminder canceled for event ID: ${eventId}`);
+  // console.log(`Reminder canceled for event ID: ${eventId}`);
 };

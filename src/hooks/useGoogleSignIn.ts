@@ -43,8 +43,8 @@ export const useGoogleSignIn = () => {
     GoogleSignin.configure({
       webClientId: process.env.EXPO_PUBLIC_WEB_CLIENT_ID,
       iosClientId: process.env.EXPO_PUBLIC_IOS_CLIENT_ID,
-      offlineAccess: true,
-      forceCodeForRefreshToken: true,
+      //offlineAccess: true,
+      //forceCodeForRefreshToken: true,
       scopes: ['profile', 'email'],
     });
   }, []);

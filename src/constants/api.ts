@@ -1,1 +1,1 @@
-export const API_BASE_URL = 'http://192.168.187.77:8800/api/v1';
+export const API_BASE_URL = 'https://instiwise-backend-v2.onrender.com/api/v1';
